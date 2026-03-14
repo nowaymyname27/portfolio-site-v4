@@ -1,6 +1,25 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+
+import Footer from "@/app/components/Footer";
+import Header from "@/app/components/Header";
 import "./globals.css";
+
+const THEME_INIT_SCRIPT = `(() => {
+  try {
+    const savedTheme = localStorage.getItem("site-theme");
+    const nextTheme =
+      savedTheme === "slate" ||
+      savedTheme === "charcoal" ||
+      savedTheme === "violet" ||
+      savedTheme === "crimson"
+        ? savedTheme
+        : "slate";
+    document.documentElement.dataset.theme = nextTheme;
+  } catch {
+    document.documentElement.dataset.theme = "slate";
+  }
+})();`;
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,11 +42,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <div id="site-top" className="min-h-screen bg-background text-foreground">
+          <Header />
+          <main className="mx-auto w-full max-w-7xl px-5 py-8 md:px-8">
+            {children}
+          </main>
+          <Footer />
+        </div>
       </body>
     </html>
   );

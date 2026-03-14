@@ -1,8 +1,38 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #111b2a;
+  --foreground: #e6edf7;
+  --border-muted: rgba(202, 218, 241, 0.38);
+  --link-accent: #7dd3fc;
+}
+
+html[data-theme="slate"] {
+  --background: #111b2a;
+  --foreground: #e6edf7;
+  --border-muted: rgba(202, 218, 241, 0.38);
+  --link-accent: #7dd3fc;
+}
+
+html[data-theme="charcoal"] {
+  --background: #1d1713;
+  --foreground: #f2e8df;
+  --border-muted: rgba(226, 205, 187, 0.35);
+  --link-accent: #fdba74;
+}
+
+html[data-theme="violet"] {
+  --background: #150f2a;
+  --foreground: #f0e9ff;
+  --border-muted: rgba(201, 176, 246, 0.4);
+  --link-accent: #c084fc;
+}
+
+html[data-theme="crimson"] {
+  --background: #2a1013;
+  --foreground: #ffe9ec;
+  --border-muted: rgba(246, 180, 190, 0.4);
+  --link-accent: #fb7185;
 }
 
 @theme inline {
@@ -12,10 +42,14 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+html {
+  color-scheme: dark;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
   }
 }
 
