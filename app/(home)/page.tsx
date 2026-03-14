@@ -1,9 +1,7 @@
+import Certifications from "@/app/(home)/components/Certifications";
 import ExperienceTimeline from "@/app/(home)/components/ExperienceTimeline";
 import Hero from "@/app/(home)/components/Hero";
-import ProjectCard from "@/app/components/ProjectCard";
-import { PROJECTS } from "@/app/projects/projects.data";
-
-const FEATURED_PROJECTS = PROJECTS.slice(0, 3);
+import ProjectsSection from "@/app/(home)/components/ProjectsSection";
 
 export default function Home() {
   return (
@@ -12,23 +10,13 @@ export default function Home() {
         <Hero />
       </section>
 
-      <section
-        id="projects"
-        className="scroll-mt-24 space-y-4 border border-dashed border-[var(--border-muted)] p-4 md:p-6"
-      >
-        <p className="font-mono text-xs uppercase tracking-wider text-foreground/70">
-          [ selected work ]
-        </p>
-        <div className="grid gap-4 lg:grid-cols-3">
-          {FEATURED_PROJECTS.map((project) => (
-            <ProjectCard key={project.id} project={project} />
-          ))}
-        </div>
-      </section>
+      <ProjectsSection />
 
       <section id="experience" className="scroll-mt-24">
         <ExperienceTimeline />
       </section>
+
+      <Certifications />
     </div>
   );
 }
