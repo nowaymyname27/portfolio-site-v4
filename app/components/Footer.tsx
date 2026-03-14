@@ -15,21 +15,30 @@ export default function Footer() {
           <p>
             <span className="text-foreground/60">contact:</span>{" "}
             <a
-              href="mailto:jose@example.com"
+              href="mailto:jose.ramirez.app.28@gmail.com"
               className="underline decoration-dotted underline-offset-4 transition-colors hover:text-[var(--link-accent)]"
             >
-              jose@example.com
+              jose.ramirez.app.28@gmail.com
             </a>
           </p>
           <p className="md:text-right">
             <span className="text-foreground/60">links:</span>{" "}
             <a
-              href="https://github.com/yourhandle"
+              href="https://github.com/nowaymyname27"
               target="_blank"
               rel="noopener noreferrer"
               className="underline decoration-dotted underline-offset-4 transition-colors hover:text-[var(--link-accent)]"
             >
               github
+            </a>{" "}
+            |{" "}
+            <a
+              href="https://www.linkedin.com/in/nowaymyname27/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline decoration-dotted underline-offset-4 transition-colors hover:text-[var(--link-accent)]"
+            >
+              linkedin
             </a>{" "}
             |{" "}
             <a
@@ -50,7 +59,7 @@ export default function Footer() {
           </p>
           <p>
             <span className="text-foreground/60">location:</span> Allentown, PA -
-            NYC (planned)
+            willing to relocate (NYC preferred, open elsewhere)
           </p>
           <p className="md:text-right">
             <span className="text-foreground/60">last updated:</span> {LAST_UPDATED}

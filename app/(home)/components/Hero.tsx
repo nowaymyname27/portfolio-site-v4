@@ -5,8 +5,8 @@ const PROFILE_LINES = [
     labelClass: "text-cyan-700 dark:text-cyan-300",
   },
   {
-    label: "role",
-    value: "Computer Science Graduate, Boston University",
+    label: "education",
+    value: "Bachelor of Arts in Computer Science from Boston University",
     labelClass: "text-lime-700 dark:text-lime-300",
   },
   {
@@ -16,13 +16,18 @@ const PROFILE_LINES = [
   },
   {
     label: "relocating",
-    value: "New York City (planned)",
+    value: "Willing to relocate (NYC preferred, open elsewhere)",
     labelClass: "text-violet-700 dark:text-violet-300",
   },
   {
     label: "currently",
     value: "Working toward CCNA certification",
     labelClass: "text-rose-700 dark:text-rose-300",
+  },
+  {
+    label: "status",
+    value: "Open to software engineering opportunities",
+    labelClass: "text-emerald-700 dark:text-emerald-300",
   },
 ];
 
@@ -63,29 +68,39 @@ export default function Hero() {
           <p className="font-mono text-xs uppercase tracking-wider text-foreground/70">
             [ contact ]
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-3">
+          <div className="space-y-3">
             <a
-              href="mailto:jose@example.com"
-              className="border border-dashed border-[var(--border-muted)] px-3 py-2 font-mono text-base text-foreground transition-colors hover:bg-foreground hover:text-background"
+              href="mailto:jose.ramirez.app.28@gmail.com"
+              className="inline-block border border-dashed border-[var(--border-muted)] px-3 py-2 font-mono text-base text-foreground transition-colors hover:bg-foreground hover:text-background"
             >
-              jose@example.com
+              jose.ramirez.app.28@gmail.com
             </a>
-            <a
-              href="https://github.com/yourhandle"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="border border-dashed border-[var(--border-muted)] px-3 py-2 font-mono text-base text-foreground transition-colors hover:bg-foreground hover:text-background"
-            >
-              github
-            </a>
-            <a
-              href="/resume.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="border border-dashed border-[var(--border-muted)] px-3 py-2 font-mono text-base text-foreground transition-colors hover:bg-foreground hover:text-background"
-            >
-              resume
-            </a>
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <a
+                href="https://github.com/nowaymyname27"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="border border-dashed border-[var(--border-muted)] px-3 py-2 font-mono text-base text-foreground transition-colors hover:bg-foreground hover:text-background"
+              >
+                github
+              </a>
+              <a
+                href="https://www.linkedin.com/in/nowaymyname27/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="border border-dashed border-[var(--border-muted)] px-3 py-2 font-mono text-base text-foreground transition-colors hover:bg-foreground hover:text-background"
+              >
+                linkedin
+              </a>
+              <a
+                href="/resume.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="border border-dashed border-[var(--border-muted)] px-3 py-2 font-mono text-base text-foreground transition-colors hover:bg-foreground hover:text-background"
+              >
+                resume
+              </a>
+            </div>
           </div>
         </div>
       </div>
