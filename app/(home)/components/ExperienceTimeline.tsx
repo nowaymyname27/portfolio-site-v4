@@ -1,6 +1,6 @@
 import { EXPERIENCE_ENTRIES } from "@/app/experience/experience.data";
 
-const DEFAULT_HOVER_BORDER_CLASS = "hover:border-red-500";
+const DEFAULT_HOVER_BORDER_CLASS = "hover:border-[var(--hover-border)]";
 const DEFAULT_TOOL_CLASS = "border-[var(--border-muted)] text-foreground/80";
 
 export default function ExperienceTimeline() {
@@ -17,7 +17,7 @@ export default function ExperienceTimeline() {
               aria-hidden="true"
               className={`absolute -left-[31px] top-6 h-3 w-3 rounded-full border ${
                 entry.isCurrent
-                  ? "border-emerald-300 bg-emerald-400 motion-safe:animate-pulse"
+                  ? "border-[var(--status-completed-border)] bg-[var(--status-completed-text)] motion-safe:animate-pulse"
                   : "border-[var(--border-muted)] bg-background"
               }`}
             />
@@ -37,10 +37,10 @@ export default function ExperienceTimeline() {
                     {entry.title}
                   </h3>
                   {entry.isCurrent ? (
-                    <span className="inline-flex items-center gap-2 border border-emerald-400/70 px-2 py-1 font-mono text-xs uppercase tracking-wide text-emerald-300">
+                    <span className="inline-flex items-center gap-2 border border-[var(--status-completed-border)] px-2 py-1 font-mono text-xs uppercase tracking-wide text-[var(--status-completed-text)]">
                       <span
                         aria-label="Live status indicator"
-                        className="h-2 w-2 rounded-full bg-emerald-400 motion-safe:animate-pulse"
+                        className="h-2 w-2 rounded-full bg-[var(--status-completed-text)] motion-safe:animate-pulse"
                       />
                       live
                     </span>

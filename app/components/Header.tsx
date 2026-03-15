@@ -1,4 +1,5 @@
 import HeaderNav from "@/app/components/HeaderNav";
+import ModeToggle from "@/app/components/ModeToggle";
 import ThemeToggle from "@/app/components/ThemeToggle";
 
 const NAV_ITEMS = [
@@ -17,8 +18,9 @@ export default function Header() {
           Jose.dev
         </span>
 
-        <div className="hidden justify-self-center md:block">
+        <div className="hidden justify-self-center md:flex md:items-center md:gap-2">
           <ThemeToggle />
+          <ModeToggle />
         </div>
 
         <div className="justify-self-end">

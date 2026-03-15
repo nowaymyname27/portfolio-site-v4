@@ -69,7 +69,7 @@ export default function Footer() {
         <div className="text-center md:text-right">
           <a
             href="#site-top"
-            className="inline-block border border-[var(--border-muted)] px-3 py-2 font-mono text-sm text-foreground transition-colors hover:border-red-500 hover:text-[var(--link-accent)]"
+            className="inline-block border border-[var(--border-muted)] px-3 py-2 font-mono text-sm text-foreground transition-colors hover:border-[var(--hover-border)] hover:text-[var(--link-accent)]"
           >
             back to top
           </a>

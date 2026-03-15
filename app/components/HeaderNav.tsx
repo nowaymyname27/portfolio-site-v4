@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import ModeToggle from "@/app/components/ModeToggle";
 import ThemeToggle from "@/app/components/ThemeToggle";
 
 type NavItem = {
@@ -36,7 +37,7 @@ export default function HeaderNav({ items }: HeaderNavProps) {
       <button
         type="button"
         onClick={() => setIsOpen((current) => !current)}
-        className="border border-[var(--border-muted)] px-2 py-1 font-mono text-xs text-foreground/85 transition-colors hover:border-red-500 hover:text-[var(--link-accent)] md:hidden"
+        className="border border-[var(--border-muted)] px-2 py-1 font-mono text-xs text-foreground/85 transition-colors hover:border-[var(--hover-border)] hover:text-[var(--link-accent)] md:hidden"
         aria-expanded={isOpen}
         aria-controls="mobile-nav-panel"
       >
@@ -54,15 +55,16 @@ export default function HeaderNav({ items }: HeaderNavProps) {
                 key={`mobile-${item.label}`}
                 href={item.href}
                 onClick={() => setIsOpen(false)}
-                className="block border border-dashed border-[var(--border-muted)] px-3 py-2 font-mono text-sm text-foreground/80 transition-colors hover:border-red-500 hover:text-[var(--link-accent)]"
+                className="block border border-dashed border-[var(--border-muted)] px-3 py-2 font-mono text-sm text-foreground/80 transition-colors hover:border-[var(--hover-border)] hover:text-[var(--link-accent)]"
               >
                 {item.label}
               </a>
             ))}
           </nav>
 
-          <div className="border-t border-dashed border-[var(--border-muted)] pt-4">
+          <div className="flex items-center gap-2 border-t border-dashed border-[var(--border-muted)] pt-4">
             <ThemeToggle />
+            <ModeToggle />
           </div>
         </div>
       ) : null}

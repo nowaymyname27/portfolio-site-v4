@@ -35,35 +35,35 @@ export const PROJECTS: ProjectItem[] = [
     tags: [
       {
         label: "next.js",
-        colorClass: "border-cyan-400/60 text-cyan-300",
+        colorClass: "border-[var(--tag-cyan-border)] text-[var(--tag-cyan-text)]",
       },
       {
         label: "react",
-        colorClass: "border-blue-400/60 text-blue-300",
+        colorClass: "border-[var(--tag-blue-border)] text-[var(--tag-blue-text)]",
       },
       {
         label: "tailwind css",
-        colorClass: "border-sky-400/60 text-sky-300",
+        colorClass: "border-[var(--tag-sky-border)] text-[var(--tag-sky-text)]",
       },
       {
         label: "typescript",
-        colorClass: "border-indigo-400/60 text-indigo-300",
+        colorClass: "border-[var(--tag-indigo-border)] text-[var(--tag-indigo-text)]",
       },
       {
         label: "framer motion",
-        colorClass: "border-violet-400/60 text-violet-300",
+        colorClass: "border-[var(--tag-violet-border)] text-[var(--tag-violet-text)]",
       },
       {
         label: "cloudinary",
-        colorClass: "border-amber-400/60 text-amber-300",
+        colorClass: "border-[var(--tag-amber-border)] text-[var(--tag-amber-text)]",
       },
       {
         label: "sanity",
-        colorClass: "border-rose-400/60 text-rose-300",
+        colorClass: "border-[var(--tag-rose-border)] text-[var(--tag-rose-text)]",
       },
     ],
     repoUrl: "https://github.com/nowaymyname27/behome-site",
-    hoverBorderClass: "hover:border-cyan-500",
+    hoverBorderClass: "hover:border-[var(--hover-border)]",
     links: [{ label: "live site", url: "https://www.rentportfolio.com/" }],
   },
   {
@@ -78,27 +78,27 @@ export const PROJECTS: ProjectItem[] = [
     tags: [
       {
         label: "next.js",
-        colorClass: "border-cyan-400/60 text-cyan-300",
+        colorClass: "border-[var(--tag-cyan-border)] text-[var(--tag-cyan-text)]",
       },
       {
         label: "react",
-        colorClass: "border-blue-400/60 text-blue-300",
+        colorClass: "border-[var(--tag-blue-border)] text-[var(--tag-blue-text)]",
       },
       {
         label: "tailwind css",
-        colorClass: "border-sky-400/60 text-sky-300",
+        colorClass: "border-[var(--tag-sky-border)] text-[var(--tag-sky-text)]",
       },
       {
         label: "javascript",
-        colorClass: "border-amber-400/60 text-amber-300",
+        colorClass: "border-[var(--tag-amber-border)] text-[var(--tag-amber-text)]",
       },
       {
         label: "sanity",
-        colorClass: "border-violet-400/60 text-violet-300",
+        colorClass: "border-[var(--tag-violet-border)] text-[var(--tag-violet-text)]",
       },
     ],
     repoUrl: "https://github.com/nowaymyname27/followingnyc-site",
-    hoverBorderClass: "hover:border-amber-500",
+    hoverBorderClass: "hover:border-[var(--hover-border)]",
     links: [{ label: "live site", url: "https://www.followingnyc.com/" }],
   },
   {
@@ -113,15 +113,15 @@ export const PROJECTS: ProjectItem[] = [
     tags: [
       {
         label: "c",
-        colorClass: "border-amber-400/60 text-amber-300",
+        colorClass: "border-[var(--tag-amber-border)] text-[var(--tag-amber-text)]",
       },
       {
         label: "neovim",
-        colorClass: "border-lime-400/60 text-lime-300",
+        colorClass: "border-[var(--tag-lime-border)] text-[var(--tag-lime-text)]",
       },
     ],
     repoUrl: "https://github.com/nowaymyname27/codecrafters-http-server-c",
-    hoverBorderClass: "hover:border-emerald-500",
+    hoverBorderClass: "hover:border-[var(--hover-border)]",
   },
   {
     id: "portfolio-website-v4",
@@ -135,27 +135,27 @@ export const PROJECTS: ProjectItem[] = [
     tags: [
       {
         label: "next.js",
-        colorClass: "border-cyan-400/60 text-cyan-300",
+        colorClass: "border-[var(--tag-cyan-border)] text-[var(--tag-cyan-text)]",
       },
       {
         label: "react",
-        colorClass: "border-blue-400/60 text-blue-300",
+        colorClass: "border-[var(--tag-blue-border)] text-[var(--tag-blue-text)]",
       },
       {
         label: "tailwind css",
-        colorClass: "border-sky-400/60 text-sky-300",
+        colorClass: "border-[var(--tag-sky-border)] text-[var(--tag-sky-text)]",
       },
       {
         label: "typescript",
-        colorClass: "border-indigo-400/60 text-indigo-300",
+        colorClass: "border-[var(--tag-indigo-border)] text-[var(--tag-indigo-text)]",
       },
       {
         label: "framer motion",
-        colorClass: "border-violet-400/60 text-violet-300",
+        colorClass: "border-[var(--tag-violet-border)] text-[var(--tag-violet-text)]",
       },
     ],
     repoUrl: "https://github.com/nowaymyname27/portfolio-site-v4",
-    hoverBorderClass: "hover:border-zinc-300",
+    hoverBorderClass: "hover:border-[var(--hover-border)]",
   },
   {
     id: "c-side-text-editor",
@@ -169,23 +169,23 @@ export const PROJECTS: ProjectItem[] = [
     tags: [
       {
         label: "c",
-        colorClass: "border-amber-400/60 text-amber-300",
+        colorClass: "border-[var(--tag-amber-border)] text-[var(--tag-amber-text)]",
       },
       {
         label: "raylib",
-        colorClass: "border-cyan-400/60 text-cyan-300",
+        colorClass: "border-[var(--tag-cyan-border)] text-[var(--tag-cyan-text)]",
       },
       {
         label: "clay",
-        colorClass: "border-orange-400/60 text-orange-300",
+        colorClass: "border-[var(--tag-orange-border)] text-[var(--tag-orange-text)]",
       },
       {
         label: "neovim",
-        colorClass: "border-lime-400/60 text-lime-300",
+        colorClass: "border-[var(--tag-lime-border)] text-[var(--tag-lime-text)]",
       },
     ],
     repoUrl: "https://github.com/nowaymyname27/C-Side",
-    hoverBorderClass: "hover:border-violet-500",
+    hoverBorderClass: "hover:border-[var(--hover-border)]",
   },
   {
     id: "sentiment-analysis-stock-prediction",
@@ -199,28 +199,28 @@ export const PROJECTS: ProjectItem[] = [
     tags: [
       {
         label: "python",
-        colorClass: "border-yellow-400/60 text-yellow-300",
+        colorClass: "border-[var(--tag-yellow-border)] text-[var(--tag-yellow-text)]",
       },
       {
         label: "numpy",
-        colorClass: "border-blue-400/60 text-blue-300",
+        colorClass: "border-[var(--tag-blue-border)] text-[var(--tag-blue-text)]",
       },
       {
         label: "pandas",
-        colorClass: "border-indigo-400/60 text-indigo-300",
+        colorClass: "border-[var(--tag-indigo-border)] text-[var(--tag-indigo-text)]",
       },
       {
         label: "scikit-learn",
-        colorClass: "border-cyan-400/60 text-cyan-300",
+        colorClass: "border-[var(--tag-cyan-border)] text-[var(--tag-cyan-text)]",
       },
       {
         label: "jupyter notebook",
-        colorClass: "border-orange-400/60 text-orange-300",
+        colorClass: "border-[var(--tag-orange-border)] text-[var(--tag-orange-text)]",
       },
     ],
     repoUrl:
       "https://github.com/nowaymyname27/Sentiment_Analysis_And_Stock_Prediction",
-    hoverBorderClass: "hover:border-amber-500",
+    hoverBorderClass: "hover:border-[var(--hover-border)]",
     links: [
       {
         label: "video demo",

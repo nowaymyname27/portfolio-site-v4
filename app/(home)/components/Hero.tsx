@@ -2,32 +2,32 @@ const PROFILE_LINES = [
   {
     label: "name",
     value: "Jose Ramirez",
-    labelClass: "text-cyan-700 dark:text-cyan-300",
+    labelClass: "text-[var(--profile-name)]",
   },
   {
     label: "education",
     value: "Bachelor of Arts in Computer Science from Boston University",
-    labelClass: "text-lime-700 dark:text-lime-300",
+    labelClass: "text-[var(--profile-education)]",
   },
   {
     label: "based",
     value: "Allentown, PA",
-    labelClass: "text-amber-700 dark:text-amber-300",
+    labelClass: "text-[var(--profile-based)]",
   },
   {
     label: "relocating",
     value: "Willing to relocate (NYC preferred, open elsewhere)",
-    labelClass: "text-violet-700 dark:text-violet-300",
+    labelClass: "text-[var(--profile-relocating)]",
   },
   {
     label: "currently",
     value: "Working toward CCNA certification",
-    labelClass: "text-rose-700 dark:text-rose-300",
+    labelClass: "text-[var(--profile-currently)]",
   },
   {
     label: "status",
     value: "Open to software engineering opportunities",
-    labelClass: "text-emerald-700 dark:text-emerald-300",
+    labelClass: "text-[var(--profile-status)]",
   },
 ];
 
@@ -35,7 +35,7 @@ export default function Hero() {
   return (
     <section className="border border-dashed border-[var(--border-muted)] bg-background p-5 md:p-7">
       <div className="space-y-5">
-        <header className="space-y-4 border border-dashed border-[var(--border-muted)] p-4 transition-colors hover:border-red-500 md:p-5">
+        <header className="space-y-4 border border-dashed border-[var(--border-muted)] p-4 transition-colors hover:border-[var(--hover-border)] md:p-5">
           <p className="font-mono text-xs uppercase tracking-wider text-foreground/70">
             [ profile ]
           </p>
@@ -48,7 +48,7 @@ export default function Hero() {
           </div>
         </header>
 
-        <div className="space-y-4 border border-dashed border-[var(--border-muted)] p-4 transition-colors hover:border-red-500 md:p-5">
+        <div className="space-y-4 border border-dashed border-[var(--border-muted)] p-4 transition-colors hover:border-[var(--hover-border)] md:p-5">
           <p className="font-mono text-xs uppercase tracking-wider text-foreground/70">
             [ summary ]
           </p>
@@ -64,7 +64,7 @@ export default function Hero() {
           </div>
         </div>
 
-        <div className="space-y-4 border border-dashed border-[var(--border-muted)] p-4 text-center transition-colors hover:border-red-500 md:p-5">
+        <div className="space-y-4 border border-dashed border-[var(--border-muted)] p-4 text-center transition-colors hover:border-[var(--hover-border)] md:p-5">
           <p className="font-mono text-xs uppercase tracking-wider text-foreground/70">
             [ contact ]
           </p>

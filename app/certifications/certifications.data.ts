@@ -20,7 +20,7 @@ export const CERTIFICATIONS: CertificationItem[] = [
     dateLabel: "earned 2025",
     credentialUrl:
       "https://cp.certmetrics.com/amazon/en/public/verify/credential/fe5b8d339ac840a1befd349b3648dca1",
-    hoverBorderClass: "hover:border-emerald-500",
+    hoverBorderClass: "hover:border-[var(--hover-border)]",
   },
   {
     id: "ccna",
@@ -29,6 +29,6 @@ export const CERTIFICATIONS: CertificationItem[] = [
     status: "in progress",
     dateLabel: "in progress",
     note: "Focused on networking fundamentals and hands-on routing/switching practice.",
-    hoverBorderClass: "hover:border-amber-500",
+    hoverBorderClass: "hover:border-[var(--hover-border)]",
   },
 ];

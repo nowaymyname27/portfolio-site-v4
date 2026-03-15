@@ -25,7 +25,7 @@ export const EXPERIENCE_ENTRIES: ExperienceItem[] = [
       "Built full-stack projects through coursework and independent work.",
       "Strengthened problem-solving and design skills by working across both technical and creative development work.",
     ],
-    hoverBorderClass: "hover:border-cyan-500",
+    hoverBorderClass: "hover:border-[var(--hover-border)]",
   },
   {
     id: "behome-developers",
@@ -38,11 +38,20 @@ export const EXPERIENCE_ENTRIES: ExperienceItem[] = [
       "Collaborated with staff to streamline data workflows and support digital marketing initiatives.",
     ],
     tools: [
-      { label: "WordPress", colorClass: "border-sky-400/60 text-sky-300" },
-      { label: "MongoDB", colorClass: "border-emerald-400/60 text-emerald-300" },
-      { label: "Microsoft Excel", colorClass: "border-lime-400/60 text-lime-300" },
+      {
+        label: "WordPress",
+        colorClass: "border-[var(--tag-sky-border)] text-[var(--tag-sky-text)]",
+      },
+      {
+        label: "MongoDB",
+        colorClass: "border-[var(--tag-emerald-border)] text-[var(--tag-emerald-text)]",
+      },
+      {
+        label: "Microsoft Excel",
+        colorClass: "border-[var(--tag-lime-border)] text-[var(--tag-lime-text)]",
+      },
     ],
-    hoverBorderClass: "hover:border-amber-500",
+    hoverBorderClass: "hover:border-[var(--hover-border)]",
   },
   {
     id: "following-nyc",
@@ -55,14 +64,32 @@ export const EXPERIENCE_ENTRIES: ExperienceItem[] = [
       "Developed custom components for image-heavy pages to keep performance fast and smooth.",
     ],
     tools: [
-      { label: "Next.js", colorClass: "border-cyan-400/60 text-cyan-300" },
-      { label: "React", colorClass: "border-blue-400/60 text-blue-300" },
-      { label: "Tailwind CSS", colorClass: "border-sky-400/60 text-sky-300" },
-      { label: "Sanity CMS", colorClass: "border-violet-400/60 text-violet-300" },
-      { label: "JavaScript", colorClass: "border-amber-400/60 text-amber-300" },
-      { label: "Vercel", colorClass: "border-zinc-300/60 text-zinc-200" },
+      {
+        label: "Next.js",
+        colorClass: "border-[var(--tag-cyan-border)] text-[var(--tag-cyan-text)]",
+      },
+      {
+        label: "React",
+        colorClass: "border-[var(--tag-blue-border)] text-[var(--tag-blue-text)]",
+      },
+      {
+        label: "Tailwind CSS",
+        colorClass: "border-[var(--tag-sky-border)] text-[var(--tag-sky-text)]",
+      },
+      {
+        label: "Sanity CMS",
+        colorClass: "border-[var(--tag-violet-border)] text-[var(--tag-violet-text)]",
+      },
+      {
+        label: "JavaScript",
+        colorClass: "border-[var(--tag-amber-border)] text-[var(--tag-amber-text)]",
+      },
+      {
+        label: "Vercel",
+        colorClass: "border-[var(--tag-zinc-border)] text-[var(--tag-zinc-text)]",
+      },
     ],
-    hoverBorderClass: "hover:border-violet-500",
+    hoverBorderClass: "hover:border-[var(--hover-border)]",
   },
   {
     id: "rentportfolio",
@@ -75,14 +102,32 @@ export const EXPERIENCE_ENTRIES: ExperienceItem[] = [
       "Implemented efficient workflows for fast updates and clear communication throughout the project.",
     ],
     tools: [
-      { label: "Next.js", colorClass: "border-cyan-400/60 text-cyan-300" },
-      { label: "React", colorClass: "border-blue-400/60 text-blue-300" },
-      { label: "Tailwind CSS", colorClass: "border-sky-400/60 text-sky-300" },
-      { label: "TypeScript", colorClass: "border-indigo-400/60 text-indigo-300" },
-      { label: "Sanity CMS", colorClass: "border-violet-400/60 text-violet-300" },
-      { label: "Vercel", colorClass: "border-zinc-300/60 text-zinc-200" },
+      {
+        label: "Next.js",
+        colorClass: "border-[var(--tag-cyan-border)] text-[var(--tag-cyan-text)]",
+      },
+      {
+        label: "React",
+        colorClass: "border-[var(--tag-blue-border)] text-[var(--tag-blue-text)]",
+      },
+      {
+        label: "Tailwind CSS",
+        colorClass: "border-[var(--tag-sky-border)] text-[var(--tag-sky-text)]",
+      },
+      {
+        label: "TypeScript",
+        colorClass: "border-[var(--tag-indigo-border)] text-[var(--tag-indigo-text)]",
+      },
+      {
+        label: "Sanity CMS",
+        colorClass: "border-[var(--tag-violet-border)] text-[var(--tag-violet-text)]",
+      },
+      {
+        label: "Vercel",
+        colorClass: "border-[var(--tag-zinc-border)] text-[var(--tag-zinc-text)]",
+      },
     ],
-    hoverBorderClass: "hover:border-rose-500",
+    hoverBorderClass: "hover:border-[var(--hover-border)]",
   },
   {
     id: "ccna-in-progress",
@@ -93,6 +138,6 @@ export const EXPERIENCE_ENTRIES: ExperienceItem[] = [
       "Building stronger networking fundamentals with consistent hands-on practice and structured study.",
     ],
     isCurrent: true,
-    hoverBorderClass: "hover:border-emerald-500",
+    hoverBorderClass: "hover:border-[var(--hover-border)]",
   },
 ];

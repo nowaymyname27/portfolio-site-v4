@@ -1,6 +1,6 @@
 import { CERTIFICATIONS } from "@/app/certifications/certifications.data";
 
-const DEFAULT_HOVER_BORDER_CLASS = "hover:border-red-500";
+const DEFAULT_HOVER_BORDER_CLASS = "hover:border-[var(--hover-border)]";
 
 export default function Certifications() {
   return (
@@ -28,8 +28,8 @@ export default function Certifications() {
                 <span
                   className={`border px-2 py-1 font-mono text-xs uppercase tracking-wide ${
                     certification.status === "completed"
-                      ? "border-emerald-400/70 text-emerald-300"
-                      : "border-amber-400/70 text-amber-300"
+                      ? "border-[var(--status-completed-border)] text-[var(--status-completed-text)]"
+                      : "border-[var(--status-progress-border)] text-[var(--status-progress-text)]"
                   }`}
                 >
                   {certification.status}

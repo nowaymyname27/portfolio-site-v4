@@ -7,7 +7,7 @@ type ProjectCardProps = {
 };
 
 const DEFAULT_TAG_CLASS = "border-[var(--border-muted)] text-foreground/80";
-const DEFAULT_HOVER_BORDER_CLASS = "hover:border-red-500";
+const DEFAULT_HOVER_BORDER_CLASS = "hover:border-[var(--hover-border)]";
 
 export default function ProjectCard({ project }: ProjectCardProps) {
   return (

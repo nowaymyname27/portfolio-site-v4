@@ -44,7 +44,7 @@ export default function ThemeToggle() {
     <button
       type="button"
       onClick={handleClick}
-      className="border border-[var(--border-muted)] px-2 py-1 font-mono text-xs text-foreground/85 transition-colors hover:border-red-500 hover:text-[var(--link-accent)]"
+      className="border border-[var(--border-muted)] px-2 py-1 font-mono text-xs text-foreground/85 transition-colors hover:border-[var(--hover-border)] hover:text-[var(--link-accent)]"
       aria-label="Cycle site theme"
     >
       {`color theme: ${theme}`}

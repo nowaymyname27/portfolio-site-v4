@@ -5,9 +5,10 @@ import Footer from "@/app/components/Footer";
 import Header from "@/app/components/Header";
 import "./globals.css";
 
-const THEME_INIT_SCRIPT = `(() => {
+const THEME_MODE_INIT_SCRIPT = `(() => {
   try {
     const savedTheme = localStorage.getItem("site-theme");
+    const savedMode = localStorage.getItem("site-mode");
     const nextTheme =
       savedTheme === "slate" ||
       savedTheme === "charcoal" ||
@@ -15,9 +16,12 @@ const THEME_INIT_SCRIPT = `(() => {
       savedTheme === "crimson"
         ? savedTheme
         : "slate";
+    const nextMode = savedMode === "light" || savedMode === "dark" ? savedMode : "dark";
     document.documentElement.dataset.theme = nextTheme;
+    document.documentElement.dataset.mode = nextMode;
   } catch {
     document.documentElement.dataset.theme = "slate";
+    document.documentElement.dataset.mode = "dark";
   }
 })();`;
 
@@ -42,9 +46,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      data-theme="slate"
+      data-mode="dark"
+      suppressHydrationWarning
+    >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+        <script dangerouslySetInnerHTML={{ __html: THEME_MODE_INIT_SCRIPT }} />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
