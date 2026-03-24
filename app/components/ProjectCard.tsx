@@ -25,13 +25,13 @@ export default function ProjectCard({ project }: ProjectCardProps) {
         </h3>
       </header>
 
-      <div className="overflow-hidden border border-[var(--border-muted)]">
+      <div className="aspect-[16/10] overflow-hidden border border-[var(--border-muted)] bg-[var(--surface-elevated)]">
         <Image
           src={project.image}
           alt={project.imageAlt}
           width={1200}
           height={700}
-          className="h-44 w-full object-cover"
+          className="h-full w-full object-contain p-2 md:p-3"
         />
       </div>
 

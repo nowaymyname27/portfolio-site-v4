@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" role="img" aria-label="Portfolio Site v4 placeholder">
+  <rect width="1200" height="700" fill="#09090b" />
+  <rect x="40" y="40" width="1120" height="620" fill="none" stroke="#f5f5f5" stroke-dasharray="8 8" stroke-width="2" />
+  <text x="80" y="120" fill="#d4d4d8" font-family="monospace" font-size="32">[ portfolio site v4 ]</text>
+  <text x="80" y="180" fill="#7dd3fc" font-family="monospace" font-size="22">brand: Jose.dev</text>
+  <text x="80" y="220" fill="#c4b5fd" font-family="monospace" font-size="22">theme: slate / violet / crimson / charcoal</text>
+  <text x="80" y="260" fill="#6ee7b7" font-family="monospace" font-size="22">mode: dark / light</text>
+  <line x1="80" y1="320" x2="1120" y2="320" stroke="#3f3f46" stroke-width="2" />
+  <text x="80" y="380" fill="#f5f5f5" font-family="monospace" font-size="20">one-page TUI portfolio with projects, experience, and certifications.</text>
+</svg>

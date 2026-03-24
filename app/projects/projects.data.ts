@@ -28,7 +28,7 @@ export const PROJECTS: ProjectItem[] = [
     title: "RentPortfolio Website",
     featured: true,
     sortOrder: 1,
-    image: "/projects/rent-intel.svg",
+    image: "/projects/RP_whitebg_logo.png",
     imageAlt: "Placeholder image for RentPortfolio Website project",
     description:
       "I built a bilingual real estate site for a client that helps investors evaluate potential build-to-rent returns through interactive tools.",
@@ -71,7 +71,7 @@ export const PROJECTS: ProjectItem[] = [
     title: "FollowingNYC Website",
     featured: true,
     sortOrder: 2,
-    image: "/projects/image-stream.svg",
+    image: "/projects/following_logo.png",
     imageAlt: "Placeholder image for FollowingNYC Website project",
     description:
       "My first client website, built to manage thousands of photos while giving the client a workflow that requires no coding.",
@@ -106,7 +106,7 @@ export const PROJECTS: ProjectItem[] = [
     title: "An HTTP Server From Scratch",
     featured: true,
     sortOrder: 3,
-    image: "/projects/systems-lab.svg",
+    image: "/projects/server.png",
     imageAlt: "Placeholder image for HTTP Server project",
     description:
       "Built my own HTTP server from scratch in C.",
@@ -128,7 +128,7 @@ export const PROJECTS: ProjectItem[] = [
     title: "Portfolio Website",
     featured: false,
     sortOrder: 4,
-    image: "/projects/open-source-cli.svg",
+    image: "/projects/portfolio-site-v4.svg",
     imageAlt: "Placeholder image for Portfolio Website project",
     description:
       "This very site. Built with React, Next.js, Tailwind CSS, and server-side rendering.",
@@ -162,7 +162,7 @@ export const PROJECTS: ProjectItem[] = [
     title: "C-Side Text Editor",
     featured: false,
     sortOrder: 5,
-    image: "/projects/packet-lab.svg",
+    image: "/projects/c-side.png",
     imageAlt: "Placeholder image for C-Side Text Editor project",
     description:
       "A text editor written in C from scratch using Raylib and Clay.",
@@ -192,7 +192,7 @@ export const PROJECTS: ProjectItem[] = [
     title: "Sentiment Analysis Data Science Project",
     featured: false,
     sortOrder: 6,
-    image: "/projects/runtime-monitor.svg",
+    image: "/projects/Stock-Market.png",
     imageAlt: "Placeholder image for Sentiment Analysis project",
     description:
       "A collaborative university project focused on sentiment analysis and stock prediction.",
