@@ -12,44 +12,49 @@ export default function Footer() {
         </p>
 
         <div className="grid gap-3 font-mono text-sm text-foreground/90 md:grid-cols-2">
-          <p>
-            <span className="text-foreground/60">contact:</span>{" "}
-            <a
-              href="mailto:jose.ramirez.app.28@gmail.com"
-              className="underline decoration-dotted underline-offset-4 transition-colors hover:text-[var(--link-accent)]"
-            >
-              jose.ramirez.app.28@gmail.com
-            </a>
-          </p>
-          <p className="md:text-right">
-            <span className="text-foreground/60">links:</span>{" "}
-            <a
-              href="https://github.com/nowaymyname27"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline decoration-dotted underline-offset-4 transition-colors hover:text-[var(--link-accent)]"
-            >
-              github
-            </a>{" "}
-            |{" "}
-            <a
-              href="https://www.linkedin.com/in/nowaymyname27/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline decoration-dotted underline-offset-4 transition-colors hover:text-[var(--link-accent)]"
-            >
-              linkedin
-            </a>{" "}
-            |{" "}
-            <a
-              href="/resume.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline decoration-dotted underline-offset-4 transition-colors hover:text-[var(--link-accent)]"
-            >
-              resume
-            </a>
-          </p>
+          <div
+            id="footer-contact"
+            className="contact-highlight scroll-mt-24 md:col-span-2 md:grid md:grid-cols-2 md:gap-3"
+          >
+            <p>
+              <span className="text-foreground/60">contact:</span>{" "}
+              <a
+                href="mailto:jose.ramirez.app.28@gmail.com"
+                className="underline decoration-dotted underline-offset-4 transition-colors hover:text-[var(--link-accent)]"
+              >
+                jose.ramirez.app.28@gmail.com
+              </a>
+            </p>
+            <p className="md:text-right">
+              <span className="text-foreground/60">links:</span>{" "}
+              <a
+                href="https://github.com/nowaymyname27"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline decoration-dotted underline-offset-4 transition-colors hover:text-[var(--link-accent)]"
+              >
+                github
+              </a>{" "}
+              |{" "}
+              <a
+                href="https://www.linkedin.com/in/nowaymyname27/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline decoration-dotted underline-offset-4 transition-colors hover:text-[var(--link-accent)]"
+              >
+                linkedin
+              </a>{" "}
+              |{" "}
+              <a
+                href="/resume.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline decoration-dotted underline-offset-4 transition-colors hover:text-[var(--link-accent)]"
+              >
+                resume
+              </a>
+            </p>
+          </div>
           <p>
             <span className="text-foreground/60">built by:</span> Jose Ramirez
           </p>
