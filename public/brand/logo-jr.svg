@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 120" role="img" aria-label="JR logo mark">
+  <rect x="1" y="1" width="518" height="118" rx="10" fill="#0b0f16" stroke="#9aa7bd" stroke-opacity="0.45" stroke-dasharray="10 8" stroke-width="2" />
+  <text x="56" y="78" fill="#e6edf7" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace" font-size="56" letter-spacing="2">[ </text>
+  <text x="152" y="78" fill="#7dd3fc" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace" font-size="56" font-weight="700" letter-spacing="4">JR</text>
+  <text x="292" y="78" fill="#e6edf7" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace" font-size="56" letter-spacing="2"> ]</text>
+  <rect x="358" y="40" width="10" height="45" fill="#7dd3fc" opacity="0.85" />
+</svg>
