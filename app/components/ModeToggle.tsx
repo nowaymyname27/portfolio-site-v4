@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type ModeName = "dark" | "light";
 
@@ -12,27 +12,30 @@ function getNextMode(mode: ModeName): ModeName {
   return mode === "dark" ? "light" : "dark";
 }
 
+function getInitialMode(): ModeName {
+  if (typeof document === "undefined") {
+    return "dark";
+  }
+
+  const savedMode = localStorage.getItem("site-mode") ?? undefined;
+  if (isModeName(savedMode)) {
+    return savedMode;
+  }
+
+  const datasetMode = document.documentElement.dataset.mode;
+  return isModeName(datasetMode) ? datasetMode : "dark";
+}
+
 export default function ModeToggle() {
-  const [mode, setMode] = useState<ModeName>(() => {
-    if (typeof document === "undefined") {
-      return "dark";
-    }
+  const [mode, setMode] = useState<ModeName>(getInitialMode);
 
-    if (!document.documentElement.dataset.theme) {
-      document.documentElement.dataset.theme = "slate";
-    }
-
-    const datasetMode = document.documentElement.dataset.mode;
-
-    return isModeName(datasetMode) ? datasetMode : "dark";
-  });
+  useEffect(() => {
+    document.documentElement.dataset.mode = mode;
+    localStorage.setItem("site-mode", mode);
+  }, [mode]);
 
   const handleClick = () => {
-    const nextMode = getNextMode(mode);
-
-    document.documentElement.dataset.mode = nextMode;
-    localStorage.setItem("site-mode", nextMode);
-    setMode(nextMode);
+    setMode((currentMode) => getNextMode(currentMode));
   };
 
   return (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const THEMES = ["slate", "violet", "crimson", "charcoal"] as const;
 type ThemeName = (typeof THEMES)[number];
@@ -21,23 +21,30 @@ function getNextTheme(theme: ThemeName): ThemeName {
   return THEMES[nextIndex];
 }
 
+function getInitialTheme(): ThemeName {
+  if (typeof document === "undefined") {
+    return "slate";
+  }
+
+  const savedTheme = localStorage.getItem("site-theme") ?? undefined;
+  if (isThemeName(savedTheme)) {
+    return savedTheme;
+  }
+
+  const datasetTheme = document.documentElement.dataset.theme;
+  return isThemeName(datasetTheme) ? datasetTheme : "slate";
+}
+
 export default function ThemeToggle() {
-  const [theme, setTheme] = useState<ThemeName>(() => {
-    if (typeof document === "undefined") {
-      return "slate";
-    }
+  const [theme, setTheme] = useState<ThemeName>(getInitialTheme);
 
-    const datasetTheme = document.documentElement.dataset.theme;
-
-    return isThemeName(datasetTheme) ? datasetTheme : "slate";
-  });
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem("site-theme", theme);
+  }, [theme]);
 
   const handleClick = () => {
-    const nextTheme = getNextTheme(theme);
-
-    document.documentElement.dataset.theme = nextTheme;
-    localStorage.setItem("site-theme", nextTheme);
-    setTheme(nextTheme);
+    setTheme((currentTheme) => getNextTheme(currentTheme));
   };
 
   return (
