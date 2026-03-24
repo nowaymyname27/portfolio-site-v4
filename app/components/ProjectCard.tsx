@@ -12,7 +12,7 @@ const DEFAULT_HOVER_BORDER_CLASS = "hover:border-[var(--hover-border)]";
 export default function ProjectCard({ project }: ProjectCardProps) {
   return (
     <article
-      className={`space-y-5 border border-dashed border-[var(--border-muted)] p-4 transition-colors md:p-5 ${
+      className={`space-y-5 border border-dashed border-[var(--border-muted)] bg-[var(--surface-elevated)] p-4 transition-colors md:p-5 ${
         project.hoverBorderClass ?? DEFAULT_HOVER_BORDER_CLASS
       }`}
     >

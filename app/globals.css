@@ -5,6 +5,7 @@
   --foreground: #e6edf7;
   --border-muted: rgba(202, 218, 241, 0.38);
   --link-accent: #7dd3fc;
+  --surface-elevated: rgba(125, 211, 252, 0.02);
   --hover-border: #ef4444;
 
   --profile-name: #67e8f9;
@@ -50,6 +51,7 @@ html[data-theme="slate"][data-mode="dark"] {
   --foreground: #e6edf7;
   --border-muted: rgba(202, 218, 241, 0.38);
   --link-accent: #7dd3fc;
+  --surface-elevated: rgba(125, 211, 252, 0.02);
 }
 
 html[data-theme="slate"][data-mode="light"] {
@@ -57,6 +59,7 @@ html[data-theme="slate"][data-mode="light"] {
   --foreground: #1b2736;
   --border-muted: rgba(27, 39, 54, 0.28);
   --link-accent: #0284c7;
+  --surface-elevated: rgba(2, 132, 199, 0.03);
 }
 
 html[data-theme="violet"][data-mode="dark"] {
@@ -64,6 +67,7 @@ html[data-theme="violet"][data-mode="dark"] {
   --foreground: #f0e9ff;
   --border-muted: rgba(201, 176, 246, 0.4);
   --link-accent: #c084fc;
+  --surface-elevated: rgba(192, 132, 252, 0.03);
 }
 
 html[data-theme="violet"][data-mode="light"] {
@@ -71,6 +75,7 @@ html[data-theme="violet"][data-mode="light"] {
   --foreground: #2f1d4d;
   --border-muted: rgba(78, 49, 126, 0.28);
   --link-accent: #7c3aed;
+  --surface-elevated: rgba(124, 58, 237, 0.03);
 }
 
 html[data-theme="crimson"][data-mode="dark"] {
@@ -78,6 +83,7 @@ html[data-theme="crimson"][data-mode="dark"] {
   --foreground: #ffe9ec;
   --border-muted: rgba(246, 180, 190, 0.4);
   --link-accent: #fb7185;
+  --surface-elevated: rgba(251, 113, 133, 0.03);
 }
 
 html[data-theme="crimson"][data-mode="light"] {
@@ -85,6 +91,7 @@ html[data-theme="crimson"][data-mode="light"] {
   --foreground: #4c1c25;
   --border-muted: rgba(112, 34, 49, 0.28);
   --link-accent: #e11d48;
+  --surface-elevated: rgba(225, 29, 72, 0.03);
 }
 
 html[data-theme="charcoal"][data-mode="dark"] {
@@ -92,6 +99,7 @@ html[data-theme="charcoal"][data-mode="dark"] {
   --foreground: #f2e8df;
   --border-muted: rgba(226, 205, 187, 0.35);
   --link-accent: #fdba74;
+  --surface-elevated: rgba(253, 186, 116, 0.02);
 }
 
 html[data-theme="charcoal"][data-mode="light"] {
@@ -99,6 +107,7 @@ html[data-theme="charcoal"][data-mode="light"] {
   --foreground: #33271f;
   --border-muted: rgba(51, 39, 31, 0.28);
   --link-accent: #c2410c;
+  --surface-elevated: rgba(194, 65, 12, 0.03);
 }
 
 @theme inline {

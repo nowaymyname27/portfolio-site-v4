@@ -23,7 +23,7 @@ export default function ExperienceTimeline() {
             />
 
             <article
-              className={`space-y-4 border border-dashed border-[var(--border-muted)] p-4 transition-colors md:p-5 ${
+              className={`space-y-4 border border-dashed border-[var(--border-muted)] bg-[var(--surface-elevated)] p-4 transition-colors md:p-5 ${
                 entry.hoverBorderClass ?? DEFAULT_HOVER_BORDER_CLASS
               }`}
             >

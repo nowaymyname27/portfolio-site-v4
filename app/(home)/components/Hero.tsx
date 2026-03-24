@@ -35,7 +35,7 @@ export default function Hero() {
   return (
     <section className="border border-dashed border-[var(--border-muted)] bg-background p-5 md:p-7">
       <div className="space-y-5">
-        <header className="space-y-4 border border-dashed border-[var(--border-muted)] p-4 transition-colors hover:border-[var(--hover-border)] md:p-5">
+        <header className="space-y-4 border border-dashed border-[var(--border-muted)] bg-[var(--surface-elevated)] p-4 transition-colors hover:border-[var(--hover-border)] md:p-5">
           <p className="font-mono text-xs uppercase tracking-wider text-foreground/70">
             [ profile ]
           </p>
@@ -48,7 +48,7 @@ export default function Hero() {
           </div>
         </header>
 
-        <div className="space-y-4 border border-dashed border-[var(--border-muted)] p-4 transition-colors hover:border-[var(--hover-border)] md:p-5">
+        <div className="space-y-4 border border-dashed border-[var(--border-muted)] bg-[var(--surface-elevated)] p-4 transition-colors hover:border-[var(--hover-border)] md:p-5">
           <p className="font-mono text-xs uppercase tracking-wider text-foreground/70">
             [ summary ]
           </p>
@@ -64,7 +64,7 @@ export default function Hero() {
           </div>
         </div>
 
-        <div className="space-y-4 border border-dashed border-[var(--border-muted)] p-4 text-center transition-colors hover:border-[var(--hover-border)] md:p-5">
+        <div className="space-y-4 border border-dashed border-[var(--border-muted)] bg-[var(--surface-elevated)] p-4 text-center transition-colors hover:border-[var(--hover-border)] md:p-5">
           <p className="font-mono text-xs uppercase tracking-wider text-foreground/70">
             [ contact ]
           </p>

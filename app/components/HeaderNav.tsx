@@ -47,7 +47,7 @@ export default function HeaderNav({ items }: HeaderNavProps) {
       {isOpen ? (
         <div
           id="mobile-nav-panel"
-          className="absolute right-0 top-full mt-3 w-64 space-y-4 border border-dashed border-[var(--border-muted)] bg-background p-4 shadow-lg md:hidden"
+          className="absolute right-0 top-full mt-3 w-64 space-y-4 border border-dashed border-[var(--border-muted)] bg-[var(--surface-elevated)] p-4 shadow-lg md:hidden"
         >
           <nav aria-label="Mobile primary" className="space-y-2">
             {items.map((item) => (
