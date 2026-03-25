@@ -1,6 +1,7 @@
 import Certifications from "@/app/(home)/components/Certifications";
 import ExperienceTimeline from "@/app/(home)/components/ExperienceTimeline";
 import Hero from "@/app/(home)/components/Hero";
+import OpenSourceContributions from "@/app/(home)/components/OpenSourceContributions";
 import ProjectsSection from "@/app/(home)/components/ProjectsSection";
 
 export default function Home() {
@@ -11,6 +12,8 @@ export default function Home() {
       </section>
 
       <ProjectsSection />
+
+      <OpenSourceContributions />
 
       <section id="experience" className="scroll-mt-24">
         <ExperienceTimeline />
