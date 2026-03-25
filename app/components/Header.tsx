@@ -5,7 +5,7 @@ import ThemeToggle from "@/app/components/ThemeToggle";
 const NAV_ITEMS = [
   { label: "Profile", href: "#profile" },
   { label: "Projects", href: "#projects" },
-  { label: "GitHub Log", href: "#contributions" },
+  { label: "GitHub", href: "#contributions" },
   { label: "Experience", href: "#experience" },
   { label: "Certifications", href: "#certifications" },
   { label: "Contact", href: "#footer-contact" },

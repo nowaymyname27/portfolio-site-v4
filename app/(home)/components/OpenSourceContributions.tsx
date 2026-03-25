@@ -4,7 +4,7 @@ import {
 } from "@/app/lib/github";
 
 const GITHUB_PR_SEARCH_URL =
-  "https://github.com/pulls?q=is%3Apr+is%3Amerged+author%3Anowaymyname27";
+  "https://github.com/nowaymyname27";
 
 function formatDate(dateIso: string): string {
   return new Intl.DateTimeFormat("en-US", {
@@ -50,7 +50,7 @@ export default async function OpenSourceContributions() {
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="font-mono text-xs uppercase tracking-wider text-foreground/70">
-          [ github-log ]
+          [ recent github log ]
         </p>
         <div className="flex items-center gap-3">
           <a
