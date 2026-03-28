@@ -71,7 +71,7 @@ export default function Hero() {
           <div className="space-y-3">
             <a
               href="mailto:jose.ramirez.app.28@gmail.com"
-              className="inline-block border border-dashed border-[var(--border-muted)] px-3 py-2 font-mono text-base text-foreground transition-colors hover:bg-foreground hover:text-background"
+              className="inline-block w-full max-w-full [overflow-wrap:anywhere] border border-dashed border-[var(--border-muted)] px-3 py-2 font-mono text-sm text-foreground transition-colors hover:bg-foreground hover:text-background sm:w-auto sm:text-base"
             >
               jose.ramirez.app.28@gmail.com
             </a>

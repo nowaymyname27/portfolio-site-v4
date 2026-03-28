@@ -36,9 +36,33 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://jose-ramirez.com"),
   title: "Jose Ramirez | Software Engineer",
   description:
     "Portfolio of Jose Ramirez featuring projects, experience, and certifications.",
+  openGraph: {
+    title: "Jose Ramirez | Software Engineer",
+    description:
+      "Portfolio of Jose Ramirez featuring projects, experience, and certifications.",
+    url: "https://jose-ramirez.com",
+    siteName: "Jose Ramirez",
+    type: "website",
+    images: [
+      {
+        url: "/icon.png",
+        width: 1200,
+        height: 1200,
+        alt: "Jose Ramirez logo",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Jose Ramirez | Software Engineer",
+    description:
+      "Portfolio of Jose Ramirez featuring projects, experience, and certifications.",
+    images: ["/icon.png"],
+  },
 };
 
 export default function RootLayout({
