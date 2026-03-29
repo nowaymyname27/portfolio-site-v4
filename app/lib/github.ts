@@ -9,6 +9,24 @@ type GithubPullRequestNode = {
   };
 };
 
+type GithubContributionCalendarResponse = {
+  data?: {
+    user?: {
+      contributionsCollection?: {
+        contributionCalendar?: {
+          weeks: Array<{
+            contributionDays: Array<{
+              date: string;
+              contributionCount: number;
+            }>;
+          }>;
+        };
+      };
+    };
+  };
+  errors?: Array<{ message: string }>;
+};
+
 type GithubGraphqlResponse = {
   data?: {
     search: {
@@ -64,10 +82,18 @@ export type ContributionItem = {
   isOpenSource?: boolean;
 };
 
+export type ContributionCalendarDay = {
+  date: string;
+  contributionCount: number;
+};
+
+export type ContributionCalendarWeek = ContributionCalendarDay[];
+
 export type ContributionColumnsFeed = {
   openSourcePullRequests: ContributionItem[];
   ownRepoCommits: ContributionItem[];
   deployments: ContributionItem[];
+  contributionCalendar: ContributionCalendarWeek[];
   partialError: boolean;
 };
 
@@ -158,6 +184,70 @@ async function getMergedPullRequests(
       sourceUrl: node.repository.url,
       isOpenSource: !node.repository.isPrivate,
     }));
+}
+
+async function getContributionCalendar(
+  username: string,
+): Promise<ContributionCalendarWeek[]> {
+  const token = getGithubToken();
+
+  const toDate = new Date();
+  const fromDate = new Date(toDate);
+  fromDate.setFullYear(toDate.getFullYear() - 1);
+
+  const query = `
+    query ContributionCalendar($username: String!, $from: DateTime!, $to: DateTime!) {
+      user(login: $username) {
+        contributionsCollection(from: $from, to: $to) {
+          contributionCalendar {
+            weeks {
+              contributionDays {
+                date
+                contributionCount
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  const response = await fetch(GITHUB_GRAPHQL_ENDPOINT, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      query,
+      variables: {
+        username,
+        from: fromDate.toISOString(),
+        to: toDate.toISOString(),
+      },
+    }),
+    next: { revalidate: 21600 },
+  });
+
+  if (!response.ok) {
+    throw new Error(`GitHub calendar request failed with status ${response.status}.`);
+  }
+
+  const result = (await response.json()) as GithubContributionCalendarResponse;
+
+  if (result.errors?.length) {
+    throw new Error(result.errors[0].message);
+  }
+
+  const weeks =
+    result.data?.user?.contributionsCollection?.contributionCalendar?.weeks ?? [];
+
+  return weeks.map((week) =>
+    week.contributionDays.map((day) => ({
+      date: day.date,
+      contributionCount: day.contributionCount,
+    })),
+  );
 }
 
 function getRepositoryOwner(nameWithOwner: string): string {
@@ -289,16 +379,18 @@ export async function getRecentContributionColumns(
   username: string,
   limitPerColumn = 5,
 ): Promise<ContributionColumnsFeed> {
-  const [prResult, commitResult, deployResult] = await Promise.allSettled([
+  const [prResult, commitResult, deployResult, calendarResult] = await Promise.allSettled([
     getMergedPullRequests(username, Math.max(limitPerColumn * 2, 10)),
     getOwnedRepositoryCommits(username),
     getRecentVercelDeployments(Math.max(limitPerColumn * 2, 10)),
+    getContributionCalendar(username),
   ]);
 
   let partialError = false;
   let mergedPullRequests: ContributionItem[] = [];
   let ownRepoCommits: ContributionItem[] = [];
   let deployments: ContributionItem[] = [];
+  let contributionCalendar: ContributionCalendarWeek[] = [];
 
   if (prResult.status === "fulfilled") {
     mergedPullRequests = prResult.value;
@@ -318,6 +410,12 @@ export async function getRecentContributionColumns(
     partialError = true;
   }
 
+  if (calendarResult.status === "fulfilled") {
+    contributionCalendar = calendarResult.value;
+  } else {
+    partialError = true;
+  }
+
   const openSourcePullRequests = mergedPullRequests.filter((pullRequest) => {
     return getRepositoryOwner(pullRequest.sourceName).toLowerCase() !== username.toLowerCase();
   });
@@ -329,6 +427,7 @@ export async function getRecentContributionColumns(
     ),
     ownRepoCommits: sortByNewest(getUniqueItems(ownRepoCommits)).slice(0, limitPerColumn),
     deployments: sortByNewest(getUniqueItems(deployments)).slice(0, limitPerColumn),
+    contributionCalendar,
     partialError,
   };
 }

@@ -3,6 +3,8 @@ import {
   type ContributionItem,
 } from "@/app/lib/github";
 
+import ContributionGrid from "@/app/(home)/components/ContributionGrid";
+
 const GITHUB_PR_SEARCH_URL =
   "https://github.com/nowaymyname27";
 
@@ -30,6 +32,9 @@ export default async function OpenSourceContributions() {
   let openSourcePullRequests = [] as ContributionItem[];
   let ownRepoCommits = [] as ContributionItem[];
   let deployments = [] as ContributionItem[];
+  let contributionCalendar = [] as Awaited<
+    ReturnType<typeof getRecentContributionColumns>
+  >["contributionCalendar"];
   let partialError = false;
   let loadError = false;
 
@@ -38,6 +43,7 @@ export default async function OpenSourceContributions() {
     openSourcePullRequests = contributionFeed.openSourcePullRequests;
     ownRepoCommits = contributionFeed.ownRepoCommits;
     deployments = contributionFeed.deployments;
+    contributionCalendar = contributionFeed.contributionCalendar;
     partialError = contributionFeed.partialError;
   } catch {
     loadError = true;
@@ -220,6 +226,22 @@ export default async function OpenSourceContributions() {
           </div>
         </div>
       )}
+
+      {!loadError ? (
+        <div className="mx-auto w-fit max-w-full space-y-3 border border-dashed border-[var(--border-muted)] bg-[var(--surface-elevated)] p-4">
+          <p className="font-mono text-xs uppercase tracking-wider text-foreground/70">
+            [ contribution grid ]
+          </p>
+
+          {contributionCalendar.length ? (
+            <ContributionGrid weeks={contributionCalendar} />
+          ) : (
+            <p className="font-mono text-xs text-foreground/70">
+              Contribution grid unavailable right now.
+            </p>
+          )}
+        </div>
+      ) : null}
     </section>
   );
 }
