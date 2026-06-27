@@ -6,6 +6,7 @@ export type CertificationItem = {
   issuer: string;
   status: CertificationStatus;
   dateLabel: string;
+  href?: string;
   credentialUrl?: string;
   note?: string;
   hoverBorderClass?: string;
@@ -28,6 +29,7 @@ export const CERTIFICATIONS: CertificationItem[] = [
     issuer: "Cisco",
     status: "in progress",
     dateLabel: "in progress",
+    href: "/current-focus",
     note: "Focused on networking fundamentals and hands-on routing/switching practice.",
     hoverBorderClass: "hover:border-[var(--hover-border)]",
   },

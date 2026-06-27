@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { EXPERIENCE_ENTRIES } from "@/app/experience/experience.data";
 
 const DEFAULT_HOVER_BORDER_CLASS = "hover:border-[var(--hover-border)]";
@@ -75,6 +77,17 @@ export default function ExperienceTimeline() {
                       {tool.label}
                     </span>
                   ))}
+                </div>
+              ) : null}
+
+              {entry.href ? (
+                <div className="border-t border-dashed border-[var(--border-muted)] pt-4">
+                  <Link
+                    href={entry.href}
+                    className="inline-block border border-dashed border-[var(--border-muted)] px-3 py-2 font-mono text-sm text-foreground transition-colors hover:bg-foreground hover:text-background"
+                  >
+                    view study plan
+                  </Link>
                 </div>
               ) : null}
             </article>

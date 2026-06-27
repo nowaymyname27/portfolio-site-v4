@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { CERTIFICATIONS } from "@/app/certifications/certifications.data";
 
 const DEFAULT_HOVER_BORDER_CLASS = "hover:border-[var(--hover-border)]";
@@ -45,16 +47,29 @@ export default function Certifications() {
               <p className="text-base leading-7 text-foreground/90">{certification.note}</p>
             ) : null}
 
-            {certification.credentialUrl ? (
+            {certification.credentialUrl || certification.href ? (
               <div className="border-t border-dashed border-[var(--border-muted)] pt-4">
-                <a
-                  href={certification.credentialUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block border border-dashed border-[var(--border-muted)] px-3 py-2 font-mono text-sm text-foreground transition-colors hover:bg-foreground hover:text-background"
-                >
-                  verify credential
-                </a>
+                <div className="flex flex-wrap gap-3">
+                  {certification.href ? (
+                    <Link
+                      href={certification.href}
+                      className="inline-block border border-dashed border-[var(--border-muted)] px-3 py-2 font-mono text-sm text-foreground transition-colors hover:bg-foreground hover:text-background"
+                    >
+                      view study plan
+                    </Link>
+                  ) : null}
+
+                  {certification.credentialUrl ? (
+                    <a
+                      href={certification.credentialUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-block border border-dashed border-[var(--border-muted)] px-3 py-2 font-mono text-sm text-foreground transition-colors hover:bg-foreground hover:text-background"
+                    >
+                      verify credential
+                    </a>
+                  ) : null}
+                </div>
               </div>
             ) : null}
           </article>

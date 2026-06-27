@@ -9,6 +9,7 @@ export type ExperienceItem = {
   title: string;
   dateRange: string;
   details: string[];
+  href?: string;
   tools?: ExperienceTool[];
   isCurrent?: boolean;
   hoverBorderClass?: string;
@@ -134,6 +135,7 @@ export const EXPERIENCE_ENTRIES: ExperienceItem[] = [
     organization: "Current Focus",
     title: "CCNA Certification - In Progress",
     dateRange: "Now",
+    href: "/current-focus",
     details: [
       "Building stronger networking fundamentals with consistent hands-on practice and structured study.",
     ],
