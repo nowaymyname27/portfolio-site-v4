@@ -279,3 +279,7 @@ export const CURRENT_FOCUS_GOAL: CurrentFocusGoal = {
     },
   ],
 };
+
+export const CURRENT_FOCUS_TASK_IDS = new Set(
+  CURRENT_FOCUS_GOAL.studyDays.flatMap((studyDay) => studyDay.tasks.map((task) => task.id)),
+);
