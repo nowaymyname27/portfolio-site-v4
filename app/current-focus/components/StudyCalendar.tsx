@@ -68,6 +68,10 @@ function getTaskTypeClass(taskType: StudyTaskType): string {
     return "border-[var(--tag-amber-border)] text-[var(--tag-amber-text)]";
   }
 
+  if (taskType === "exam-prep") {
+    return "border-[var(--status-progress-border)] text-[var(--status-progress-text)]";
+  }
+
   return "border-[var(--tag-violet-border)] text-[var(--tag-violet-text)]";
 }
 

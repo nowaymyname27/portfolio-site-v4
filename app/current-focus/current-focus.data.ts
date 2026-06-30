@@ -1,4 +1,4 @@
-export type StudyTaskType = "flashcards" | "video" | "lab";
+export type StudyTaskType = "flashcards" | "video" | "lab" | "exam-prep";
 
 export type StudyTask = {
   id: string;
@@ -155,6 +155,16 @@ function createLabTask(date: string, topic: string, index: number): StudyTask {
   };
 }
 
+function createExamPrepTask(date: string): StudyTask {
+  return {
+    id: `${date}-exam-prep`,
+    type: "exam-prep",
+    title: "Exam Prep",
+    description:
+      "Use this block for focused CCNA review, weak-area reinforcement, and final exam preparation.",
+  };
+}
+
 function createTasksForDay(
   date: string,
   dayOfWeek: number,
@@ -185,6 +195,10 @@ function createTasksForDay(
   for (let slot = 0; slot < topicSlots && nextLabIndex < labTopics.length; slot += 1) {
     tasks.push(createLabTask(date, labTopics[nextLabIndex], nextLabIndex + 1));
     nextLabIndex += 1;
+  }
+
+  if (nextVideoIndex >= videoTopics.length) {
+    tasks.push(createExamPrepTask(date));
   }
 
   return {
@@ -237,7 +251,7 @@ export const CURRENT_FOCUS_GOAL: CurrentFocusGoal = {
   targetDate: TARGET_DATE,
   currentPhase: "Daily retention, topic study, and repeated lab practice.",
   cadenceSummary:
-    "Flashcards happen daily. Mondays, Tuesdays, and Fridays pull two videos and two labs, while Wednesdays and Thursdays pull one video and one lab until the backlog is complete.",
+    "Flashcards happen daily. Mondays, Tuesdays, and Fridays pull two videos and two labs, while Wednesdays and Thursdays pull one video and one lab. After the video backlog ends with Terraform, weekdays shift into exam prep.",
   studyDays: generateStudyDays(
     START_DATE,
     TARGET_DATE,
