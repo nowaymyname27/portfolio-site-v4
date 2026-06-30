@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 const PROFILE_LINES = [
   {
     label: "name",
@@ -26,7 +28,8 @@ const PROFILE_LINES = [
   },
   {
     label: "status",
-    value: "Open to software engineering opportunities",
+    value: "Working towards CCNA certification (Click to see progress!)",
+    href: "/current-focus",
     labelClass: "text-[var(--profile-status)]",
   },
 ];
@@ -42,7 +45,17 @@ export default function Hero() {
           <div className="space-y-2">
             {PROFILE_LINES.map((line) => (
               <p key={line.label} className="font-mono text-base text-foreground md:text-lg">
-                <span className={line.labelClass}>{line.label}:</span> {line.value}
+                <span className={line.labelClass}>{line.label}:</span>{" "}
+                {line.href ? (
+                  <Link
+                    href={line.href}
+                    className="transition-colors hover:text-[var(--link-accent)]"
+                  >
+                    {line.value}
+                  </Link>
+                ) : (
+                  line.value
+                )}
               </p>
             ))}
           </div>

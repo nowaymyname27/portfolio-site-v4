@@ -1,3 +1,7 @@
+"use client";
+
+import { useSyncExternalStore } from "react";
+
 import type { CurrentFocusGoal } from "@/app/current-focus/current-focus.data";
 
 type GoalSummaryProps = {
@@ -5,18 +9,26 @@ type GoalSummaryProps = {
 };
 
 function getDaysRemaining(targetDate: string): number {
-  const today = new Date();
-  const todayUtc = Date.UTC(
-    today.getUTCFullYear(),
-    today.getUTCMonth(),
-    today.getUTCDate(),
-  );
-  const targetUtc = Date.parse(`${targetDate}T00:00:00Z`);
-  return Math.max(0, Math.ceil((targetUtc - todayUtc) / 86400000));
+  const [year, month, day] = targetDate.split("-").map(Number);
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const target = new Date(year, month - 1, day);
+
+  return Math.max(0, Math.ceil((target.getTime() - today.getTime()) / 86400000));
+}
+
+function subscribeToLocalDayChange(onStoreChange: () => void): () => void {
+  const intervalId = window.setInterval(onStoreChange, 60000);
+
+  return () => window.clearInterval(intervalId);
 }
 
 export default function GoalSummary({ goal }: GoalSummaryProps) {
-  const daysRemaining = getDaysRemaining(goal.targetDate);
+  const daysRemaining = useSyncExternalStore(
+    subscribeToLocalDayChange,
+    () => getDaysRemaining(goal.targetDate),
+    () => null,
+  );
 
   return (
     <section className="space-y-5 border border-dashed border-[var(--border-muted)] p-4 md:p-6">
@@ -40,13 +52,13 @@ export default function GoalSummary({ goal }: GoalSummaryProps) {
           exam countdown
         </p>
         <p className="mt-4 font-mono text-6xl text-foreground md:text-8xl">
-          {daysRemaining}
+          {daysRemaining ?? "--"}
         </p>
         <p className="mt-3 font-mono text-sm uppercase tracking-[0.25em] text-foreground/60 md:text-base">
-            days remaining
+          days remaining
           until exam day
         </p>
-        </article>
+      </article>
     </section>
   );
 }

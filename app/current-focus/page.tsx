@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 
 import GoalSummary from "@/app/current-focus/components/GoalSummary";
-import MilestoneList from "@/app/current-focus/components/MilestoneList";
 import StudyCalendar from "@/app/current-focus/components/StudyCalendar";
 import { CURRENT_FOCUS_GOAL } from "@/app/current-focus/current-focus.data";
 import { isCurrentFocusAdmin } from "@/app/lib/current-focus-admin";
@@ -9,7 +8,7 @@ import { getCompletedTasks } from "@/app/lib/current-focus-store";
 
 export const metadata: Metadata = {
   title: "Current Focus | Jose Ramirez",
-  description: "Weekly CCNA study plan and checkpoints for Jose Ramirez.",
+  description: "Weekly CCNA study plan for Jose Ramirez.",
 };
 
 export const dynamic = "force-dynamic";
@@ -36,7 +35,6 @@ export default async function CurrentFocusPage({ searchParams }: CurrentFocusPag
         editModeRequested={edit === "1"}
         initialIsAdmin={isAdmin}
       />
-      <MilestoneList milestones={CURRENT_FOCUS_GOAL.milestones} />
     </div>
   );
 }

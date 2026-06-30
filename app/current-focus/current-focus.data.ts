@@ -12,12 +12,6 @@ export type StudyDay = {
   tasks: StudyTask[];
 };
 
-export type GoalMilestone = {
-  title: string;
-  targetDate: string;
-  description: string;
-};
-
 export type CurrentFocusGoal = {
   title: string;
   startedOn: string;
@@ -25,7 +19,6 @@ export type CurrentFocusGoal = {
   currentPhase: string;
   cadenceSummary: string;
   studyDays: StudyDay[];
-  milestones: GoalMilestone[];
 };
 
 const START_DATE = "2026-06-29";
@@ -251,33 +244,6 @@ export const CURRENT_FOCUS_GOAL: CurrentFocusGoal = {
     REMAINING_VIDEOS,
     REMAINING_LABS,
   ),
-  milestones: [
-    {
-      title: "Week 1 checkpoint",
-      targetDate: "2026-07-03",
-      description: "Finish the first full study cycle and settle into the recurring CCNA routine.",
-    },
-    {
-      title: "Midpoint review",
-      targetDate: "2026-07-17",
-      description: "Review progress halfway through the schedule and tighten weak areas.",
-    },
-    {
-      title: "Final prep shift",
-      targetDate: "2026-08-01",
-      description: "Move from building coverage into deliberate review and repetition.",
-    },
-    {
-      title: "Exam week lock-in",
-      targetDate: "2026-08-10",
-      description: "Use the final days to stay sharp with labs, flashcards, and focused review.",
-    },
-    {
-      title: "Exam day",
-      targetDate: "2026-08-15",
-      description: "Sit for the CCNA and close out the study plan.",
-    },
-  ],
 };
 
 export const CURRENT_FOCUS_TASK_IDS = new Set(
