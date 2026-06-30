@@ -22,11 +22,6 @@ const PROFILE_LINES = [
     labelClass: "text-[var(--profile-relocating)]",
   },
   {
-    label: "currently",
-    value: "Working toward CCNA certification",
-    labelClass: "text-[var(--profile-currently)]",
-  },
-  {
     label: "status",
     value: "Working towards CCNA certification (Click to see progress!)",
     href: "/current-focus",
