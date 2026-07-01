@@ -1,4 +1,4 @@
-export type StudyTaskType = "flashcards" | "video" | "lab" | "exam-prep";
+export type StudyTaskType = "flashcards" | "video" | "lab" | "exam-prep" | "exam";
 
 export type StudyTask = {
   id: string;
@@ -22,7 +22,8 @@ export type CurrentFocusGoal = {
 };
 
 const START_DATE = "2026-06-29";
-const TARGET_DATE = "2026-08-18";
+const TARGET_DATE = "2026-08-19";
+const EXAM_DATE = "2026-08-19";
 
 const REMAINING_VIDEOS = [
   "Floating Static Routes",
@@ -165,6 +166,15 @@ function createExamPrepTask(date: string): StudyTask {
   };
 }
 
+function createExamTask(date: string): StudyTask {
+  return {
+    id: `${date}-exam`,
+    type: "exam",
+    title: "Exam!",
+    description: "CCNA exam day. Stay calm, trust your prep, and go close it out.",
+  };
+}
+
 function createTasksForDay(
   date: string,
   dayOfWeek: number,
@@ -173,6 +183,14 @@ function createTasksForDay(
   videoIndex: number,
   labIndex: number,
 ): { tasks: StudyTask[]; nextVideoIndex: number; nextLabIndex: number } {
+  if (date === EXAM_DATE) {
+    return {
+      tasks: [createExamTask(date)],
+      nextVideoIndex: videoIndex,
+      nextLabIndex: labIndex,
+    };
+  }
+
   const tasks: StudyTask[] = [createFlashcardsTask(date)];
   const topicSlots = getTopicSlotsForDay(dayOfWeek);
 
