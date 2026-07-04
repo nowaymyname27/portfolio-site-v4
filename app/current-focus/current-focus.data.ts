@@ -24,6 +24,7 @@ export type CurrentFocusGoal = {
 const START_DATE = "2026-06-29";
 const TARGET_DATE = "2026-08-19";
 const EXAM_DATE = "2026-08-19";
+const BACKLOG_SKIP_DATES = new Set(["2026-07-02", "2026-07-03"]);
 
 const REMAINING_VIDEOS = [
   "Floating Static Routes",
@@ -194,7 +195,7 @@ function createTasksForDay(
   const tasks: StudyTask[] = [createFlashcardsTask(date)];
   const topicSlots = getTopicSlotsForDay(dayOfWeek);
 
-  if (topicSlots === 0) {
+  if (topicSlots === 0 || BACKLOG_SKIP_DATES.has(date)) {
     return {
       tasks,
       nextVideoIndex: videoIndex,
