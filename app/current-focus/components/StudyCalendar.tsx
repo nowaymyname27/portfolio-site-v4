@@ -3,16 +3,17 @@
 import { useMemo, useState } from "react";
 
 import type {
-  CurrentFocusGoal,
+  SkippedDayMap,
   StudyDay,
   StudyTask,
   StudyTaskType,
 } from "@/app/current-focus/current-focus.data";
+import { getCurrentFocusGoal } from "@/app/current-focus/current-focus.data";
 import type { TaskCompletionMap } from "@/app/lib/current-focus-store";
 
 type StudyCalendarProps = {
-  goal: CurrentFocusGoal;
   initialCompletedTasks: TaskCompletionMap;
+  initialSkippedDays: SkippedDayMap;
   editModeRequested: boolean;
   initialIsAdmin: boolean;
 };
@@ -152,11 +153,13 @@ function getCompletedTaskCount(tasks: StudyTask[], completedTasks: TaskCompletio
 }
 
 export default function StudyCalendar({
-  goal,
   initialCompletedTasks,
+  initialSkippedDays,
   editModeRequested,
   initialIsAdmin,
 }: StudyCalendarProps) {
+  const [skippedDays, setSkippedDays] = useState<SkippedDayMap>(initialSkippedDays);
+  const goal = useMemo(() => getCurrentFocusGoal(skippedDays), [skippedDays]);
   const studyWeeks = useMemo(() => buildStudyWeeks(goal.studyDays), [goal.studyDays]);
   const defaultWeekIndex = getDefaultWeekIndex(studyWeeks);
   const [visibleWeekIndex, setVisibleWeekIndex] = useState<number>(defaultWeekIndex);
@@ -173,6 +176,33 @@ export default function StudyCalendar({
   const visibleWeek = studyWeeks[visibleWeekIndex] ?? [];
   const selectedStudyDay =
     visibleWeek.find((weekDay) => weekDay.studyDay?.date === selectedDate)?.studyDay ?? null;
+
+  function getUnfinishedVideoAndLabCounts(studyDay: StudyDay): { videoSlots: number; labSlots: number } {
+    return studyDay.tasks.reduce(
+      (counts, task) => {
+        if (isTaskCompleted(completedTasks, task.id)) {
+          return counts;
+        }
+
+        if (task.type === "video") {
+          return {
+            ...counts,
+            videoSlots: counts.videoSlots + 1,
+          };
+        }
+
+        if (task.type === "lab") {
+          return {
+            ...counts,
+            labSlots: counts.labSlots + 1,
+          };
+        }
+
+        return counts;
+      },
+      { videoSlots: 0, labSlots: 0 },
+    );
+  }
 
   async function updateTaskCompletion(taskId: string, completed: boolean): Promise<void> {
     const previousCompletions = completedTasks;
@@ -268,6 +298,55 @@ export default function StudyCalendar({
 
     const data = (await response.json()) as { completions: TaskCompletionMap };
     setCompletedTasks(data.completions);
+    setIsSaving(false);
+  }
+
+  async function pushUnfinishedWorkToSaturday(date: string, videoSlots: number, labSlots: number): Promise<void> {
+    if (videoSlots === 0 && labSlots === 0) {
+      return;
+    }
+
+    const previousSkippedDays = skippedDays;
+
+    setIsSaving(true);
+    setAuthError(null);
+    setSkippedDays((currentSkippedDays) => {
+      const currentSlots = currentSkippedDays[date] ?? { videoSlots: 0, labSlots: 0 };
+
+      return {
+        ...currentSkippedDays,
+        [date]: {
+          videoSlots: currentSlots.videoSlots + videoSlots,
+          labSlots: currentSlots.labSlots + labSlots,
+        },
+      };
+    });
+
+    const response = await fetch("/api/current-focus/skip-days", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ date, videoSlots, labSlots }),
+    });
+
+    if (!response.ok) {
+      const payload = await response.json().catch(() => null);
+
+      if (response.status === 401) {
+        setIsAdmin(false);
+        setAuthError("Editing session expired. Unlock again to keep updating progress.");
+      } else {
+        setAuthError(payload?.error ?? "Unable to push unfinished work to Saturday.");
+      }
+
+      setSkippedDays(previousSkippedDays);
+      setIsSaving(false);
+      return;
+    }
+
+    const data = (await response.json()) as { skippedDays: SkippedDayMap };
+    setSkippedDays(data.skippedDays);
     setIsSaving(false);
   }
 
@@ -452,6 +531,7 @@ export default function StudyCalendar({
                       }`}
                     >
                       {task.title}
+                      {task.isCatchUp ? " [catch-up]" : ""}
                     </span>
                   ))}
                 </div>
@@ -504,6 +584,30 @@ export default function StudyCalendar({
             >
               clear day
             </button>
+            {(() => {
+              const unfinishedCounts = getUnfinishedVideoAndLabCounts(selectedStudyDay);
+
+              if (unfinishedCounts.videoSlots === 0 && unfinishedCounts.labSlots === 0) {
+                return null;
+              }
+
+              return (
+                <button
+                  type="button"
+                  disabled={isSaving}
+                  onClick={() => {
+                    void pushUnfinishedWorkToSaturday(
+                      selectedStudyDay.date,
+                      unfinishedCounts.videoSlots,
+                      unfinishedCounts.labSlots,
+                    );
+                  }}
+                  className="border border-[var(--border-muted)] px-3 py-2 font-mono text-xs uppercase tracking-wide text-foreground transition-colors hover:bg-foreground hover:text-background disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  push unfinished to Saturdays
+                </button>
+              );
+            })()}
           </div>
         ) : null}
 
@@ -539,6 +643,11 @@ export default function StudyCalendar({
                         {completed ? (
                           <span className="border border-[var(--status-completed-border)] px-2 py-1 font-mono text-[10px] uppercase tracking-wide text-[var(--status-completed-text)]">
                             done
+                          </span>
+                        ) : null}
+                        {task.isCatchUp ? (
+                          <span className="border border-[var(--status-progress-border)] px-2 py-1 font-mono text-[10px] uppercase tracking-wide text-[var(--status-progress-text)]">
+                            catch-up
                           </span>
                         ) : null}
                       </div>

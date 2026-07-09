@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 
 import GoalSummary from "@/app/current-focus/components/GoalSummary";
 import StudyCalendar from "@/app/current-focus/components/StudyCalendar";
-import { CURRENT_FOCUS_GOAL } from "@/app/current-focus/current-focus.data";
+import { getCurrentFocusGoal } from "@/app/current-focus/current-focus.data";
 import { isCurrentFocusAdmin } from "@/app/lib/current-focus-admin";
-import { getCompletedTasks } from "@/app/lib/current-focus-store";
+import { getCompletedTasks, getSkippedDays } from "@/app/lib/current-focus-store";
 
 export const metadata: Metadata = {
   title: "Current Focus | Jose Ramirez",
@@ -20,18 +20,20 @@ type CurrentFocusPageProps = {
 };
 
 export default async function CurrentFocusPage({ searchParams }: CurrentFocusPageProps) {
-  const [{ edit }, completedTasks, isAdmin] = await Promise.all([
+  const [{ edit }, completedTasks, skippedDays, isAdmin] = await Promise.all([
     searchParams,
     getCompletedTasks(),
+    getSkippedDays(),
     isCurrentFocusAdmin(),
   ]);
+  const goal = getCurrentFocusGoal(skippedDays);
 
   return (
     <div className="space-y-6 pb-8 pt-6 md:space-y-8 md:pb-10 md:pt-8">
-      <GoalSummary goal={CURRENT_FOCUS_GOAL} />
+      <GoalSummary goal={goal} />
       <StudyCalendar
-        goal={CURRENT_FOCUS_GOAL}
         initialCompletedTasks={completedTasks}
+        initialSkippedDays={skippedDays}
         editModeRequested={edit === "1"}
         initialIsAdmin={isAdmin}
       />

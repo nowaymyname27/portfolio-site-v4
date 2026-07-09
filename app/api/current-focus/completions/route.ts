@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { CURRENT_FOCUS_TASK_IDS } from "@/app/current-focus/current-focus.data";
+import { isCurrentFocusTaskId } from "@/app/current-focus/current-focus.data";
 import { isCurrentFocusAdmin } from "@/app/lib/current-focus-admin";
 import { getCompletedTasks, setManyTaskCompletions } from "@/app/lib/current-focus-store";
 
@@ -26,7 +26,7 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
   }
 
-  if (body.taskIds.some((taskId) => !CURRENT_FOCUS_TASK_IDS.has(taskId))) {
+  if (body.taskIds.some((taskId) => !isCurrentFocusTaskId(taskId))) {
     return NextResponse.json({ error: "Unknown task id." }, { status: 400 });
   }
 
