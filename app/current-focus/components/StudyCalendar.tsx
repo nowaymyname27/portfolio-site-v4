@@ -6,6 +6,7 @@ import {
   CURRENT_FOCUS_COLOR_OPTIONS,
   type CurrentFocusBoard,
   type CurrentFocusColor,
+  type CurrentFocusDay,
   type CurrentFocusTask,
 } from "@/app/current-focus/current-focus.data";
 
@@ -22,11 +23,13 @@ type BoardMutationResponse = {
 type BoardAction =
   | {
       type: "add-task";
+      date: string;
       title: string;
       color: CurrentFocusColor;
     }
   | {
       type: "update-task";
+      date: string;
       taskId: string;
       title?: string;
       color?: CurrentFocusColor;
@@ -34,16 +37,63 @@ type BoardAction =
     }
   | {
       type: "delete-task";
+      date: string;
       taskId: string;
     };
+
+function createUtcDate(date: string): Date {
+  return new Date(`${date}T00:00:00Z`);
+}
 
 function getColorClasses(color: CurrentFocusColor): string {
   return `border-[var(--tag-${color}-border)] text-[var(--tag-${color}-text)]`;
 }
 
-function getProgressLabel(tasks: CurrentFocusTask[]): string {
+function getDayLabel(date: string): string {
+  return new Intl.DateTimeFormat("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  }).format(createUtcDate(date));
+}
+
+function getFullDateLabel(date: string): string {
+  return new Intl.DateTimeFormat("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(createUtcDate(date));
+}
+
+function getWeekRangeLabel(weekStart: string): string {
+  const start = createUtcDate(weekStart);
+  const end = new Date(start);
+  end.setUTCDate(start.getUTCDate() + 6);
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  }).formatRange(start, end);
+}
+
+function getTaskProgress(tasks: CurrentFocusTask[]): string {
   const completedCount = tasks.filter((task) => task.completed).length;
   return `${completedCount} / ${tasks.length} done`;
+}
+
+function getBoardProgress(days: CurrentFocusDay[]): string {
+  const tasks = days.flatMap((day) => day.tasks);
+  return getTaskProgress(tasks);
+}
+
+function getInitialSelectedDate(days: CurrentFocusDay[]): string {
+  const today = new Date().toISOString().slice(0, 10);
+  return days.find((day) => day.date === today)?.date ?? days[0]?.date ?? "";
 }
 
 export default function StudyCalendar({
@@ -52,6 +102,7 @@ export default function StudyCalendar({
   initialIsAdmin,
 }: StudyCalendarProps) {
   const [board, setBoard] = useState<CurrentFocusBoard>(initialBoard);
+  const [selectedDate, setSelectedDate] = useState<string>(() => getInitialSelectedDate(initialBoard.days));
   const [isAdmin, setIsAdmin] = useState<boolean>(initialIsAdmin);
   const [adminSecret, setAdminSecret] = useState<string>("");
   const [authError, setAuthError] = useState<string | null>(null);
@@ -59,6 +110,8 @@ export default function StudyCalendar({
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [newTaskTitle, setNewTaskTitle] = useState<string>("");
   const [newTaskColor, setNewTaskColor] = useState<CurrentFocusColor>("cyan");
+
+  const selectedDay = board.days.find((day) => day.date === selectedDate) ?? board.days[0] ?? null;
 
   async function mutateBoard(action: BoardAction): Promise<void> {
     setIsSaving(true);
@@ -77,9 +130,9 @@ export default function StudyCalendar({
 
       if (response.status === 401) {
         setIsAdmin(false);
-        setAuthError("Editing session expired. Unlock again to keep updating this week&apos;s focus.");
+        setAuthError("Editing session expired. Unlock again to keep updating this week's focus.");
       } else {
-        setAuthError(payload?.error ?? "Unable to update this week&apos;s focus.");
+        setAuthError(payload?.error ?? "Unable to update this week's focus.");
       }
 
       setIsSaving(false);
@@ -88,6 +141,9 @@ export default function StudyCalendar({
 
     const data = (await response.json()) as BoardMutationResponse;
     setBoard(data.board);
+    setSelectedDate((currentDate) =>
+      data.board.days.some((day) => day.date === currentDate) ? currentDate : getInitialSelectedDate(data.board.days),
+    );
     setIsSaving(false);
   }
 
@@ -128,6 +184,11 @@ export default function StudyCalendar({
   async function handleAddTask(): Promise<void> {
     const title = newTaskTitle.trim();
 
+    if (!selectedDay) {
+      setAuthError("No day selected.");
+      return;
+    }
+
     if (title.length === 0) {
       setAuthError("Enter a task title before adding it.");
       return;
@@ -135,6 +196,7 @@ export default function StudyCalendar({
 
     await mutateBoard({
       type: "add-task",
+      date: selectedDay.date,
       title,
       color: newTaskColor,
     });
@@ -151,10 +213,13 @@ export default function StudyCalendar({
             [ weekly task board ]
           </p>
           <h2 className="mt-2 font-mono text-lg text-foreground md:text-xl">This Week&apos;s Focus</h2>
+          <p className="mt-2 font-mono text-xs uppercase tracking-wide text-foreground/60">
+            {getWeekRangeLabel(board.weekStart)}
+          </p>
         </div>
 
         <p className="font-mono text-xs uppercase tracking-wide text-[var(--status-completed-text)]">
-          {getProgressLabel(board.tasks)}
+          {getBoardProgress(board.days)}
         </p>
       </div>
 
@@ -166,7 +231,7 @@ export default function StudyCalendar({
                 [ progress editing ]
               </p>
               <p className="mt-1 text-sm leading-7 text-foreground/75">
-                Everyone can see the list. Only your unlocked session can add, update, or remove tasks.
+                Everyone can see the week. Only your unlocked session can add, update, or remove day tasks.
               </p>
             </div>
 
@@ -184,57 +249,9 @@ export default function StudyCalendar({
           </div>
 
           {isAdmin ? (
-            <>
-              <p className="font-mono text-xs uppercase tracking-wide text-[var(--status-completed-text)]">
-                editing unlocked
-              </p>
-
-              <div className="space-y-3 border border-dashed border-[var(--border-muted)] bg-background/25 p-3">
-                <label className="block space-y-2">
-                  <span className="font-mono text-xs uppercase tracking-wide text-foreground/60">New task</span>
-                  <input
-                    type="text"
-                    value={newTaskTitle}
-                    onChange={(event) => setNewTaskTitle(event.target.value)}
-                    placeholder="add a task for this week"
-                    className="w-full min-w-0 border border-[var(--border-muted)] bg-background px-3 py-2 font-mono text-sm text-foreground outline-none transition-colors placeholder:text-foreground/35 focus:border-[var(--hover-border)]"
-                  />
-                </label>
-
-                <div className="space-y-2">
-                  <p className="font-mono text-xs uppercase tracking-wide text-foreground/60">Outline color</p>
-                  <div className="flex flex-wrap gap-2">
-                    {CURRENT_FOCUS_COLOR_OPTIONS.map((color) => {
-                      const isSelected = color === newTaskColor;
-
-                      return (
-                        <button
-                          key={color}
-                          type="button"
-                          onClick={() => setNewTaskColor(color)}
-                          className={`border px-2 py-1 font-mono text-[10px] uppercase tracking-wide transition-colors ${getColorClasses(
-                            color,
-                          )} ${isSelected ? "bg-foreground/8" : "hover:bg-background/50"}`}
-                        >
-                          {color}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  disabled={isSaving || newTaskTitle.trim().length === 0}
-                  onClick={() => {
-                    void handleAddTask();
-                  }}
-                  className="border border-[var(--border-muted)] px-3 py-2 font-mono text-xs uppercase tracking-wide text-foreground transition-colors hover:bg-foreground hover:text-background disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  add task
-                </button>
-              </div>
-            </>
+            <p className="font-mono text-xs uppercase tracking-wide text-[var(--status-completed-text)]">
+              editing unlocked
+            </p>
           ) : (
             <div className="flex flex-col gap-3 md:flex-row md:items-center">
               <input
@@ -261,107 +278,222 @@ export default function StudyCalendar({
         </article>
       ) : null}
 
-      <article className="space-y-4 border border-dashed border-[var(--border-muted)] bg-[var(--surface-elevated)] p-4">
-        {board.tasks.length > 0 ? (
-          <div className="space-y-3">
-            {board.tasks.map((task) => (
-              <article
-                key={task.id}
-                className={`space-y-3 border bg-background/30 p-3 ${getColorClasses(task.color)} ${
-                  task.completed ? "opacity-70" : "opacity-100"
-                }`}
-              >
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div className="space-y-2">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h3
-                        className={`font-mono text-sm md:text-base ${task.completed ? "line-through" : ""}`}
-                      >
-                        {task.title}
-                      </h3>
-                      <span className={`border px-2 py-1 font-mono text-[10px] uppercase tracking-wide ${getColorClasses(task.color)}`}>
-                        {task.color}
-                      </span>
-                      {task.completed ? (
-                        <span className="border border-[var(--status-completed-border)] px-2 py-1 font-mono text-[10px] uppercase tracking-wide text-[var(--status-completed-text)]">
-                          done
-                        </span>
-                      ) : null}
-                    </div>
-                  </div>
+      <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-7">
+        {board.days.map((day) => {
+          const isSelected = selectedDay?.date === day.date;
 
-                  {isAdmin ? (
-                    <div className="flex flex-wrap gap-2">
-                      <button
-                        type="button"
-                        disabled={isSaving}
-                        onClick={() => {
-                          void mutateBoard({
-                            type: "update-task",
-                            taskId: task.id,
-                            completed: !task.completed,
-                          });
-                        }}
-                        className={`border px-3 py-2 font-mono text-xs uppercase tracking-wide transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
-                          task.completed
-                            ? "border-[var(--status-completed-border)] text-[var(--status-completed-text)] hover:bg-[var(--status-completed-text)]/10"
-                            : "border-[var(--border-muted)] text-foreground hover:bg-foreground hover:text-background"
-                        }`}
-                      >
-                        {task.completed ? "mark incomplete" : "mark complete"}
-                      </button>
-                      <button
-                        type="button"
-                        disabled={isSaving}
-                        onClick={() => {
-                          void mutateBoard({
-                            type: "delete-task",
-                            taskId: task.id,
-                          });
-                        }}
-                        className="border border-[var(--tag-rose-border)] px-3 py-2 font-mono text-xs uppercase tracking-wide text-[var(--tag-rose-text)] transition-colors hover:bg-[var(--tag-rose-text)]/10 disabled:cursor-not-allowed disabled:opacity-40"
-                      >
-                        delete
-                      </button>
-                    </div>
-                  ) : null}
+          return (
+            <button
+              key={day.date}
+              type="button"
+              onClick={() => setSelectedDate(day.date)}
+              className={`min-h-36 space-y-3 border p-3 text-left transition-colors ${
+                isSelected
+                  ? "border-[var(--hover-border)] bg-[var(--surface-elevated)]"
+                  : "border-[var(--border-muted)] bg-background/20 hover:border-[var(--hover-border)]"
+              }`}
+            >
+              <div className="space-y-1">
+                <p className="font-mono text-sm text-foreground">{getDayLabel(day.date)}</p>
+                <p className="font-mono text-[10px] uppercase tracking-wide text-foreground/60">
+                  {day.tasks.length} {day.tasks.length === 1 ? "task" : "tasks"}
+                </p>
+                <p className="font-mono text-[10px] uppercase tracking-wide text-[var(--status-completed-text)]">
+                  {getTaskProgress(day.tasks)}
+                </p>
+              </div>
+
+              {day.tasks.length > 0 ? (
+                <div className="flex flex-wrap gap-1">
+                  {day.tasks.map((task) => (
+                    <span
+                      key={task.id}
+                      className={`border px-1.5 py-1 font-mono text-[10px] uppercase tracking-wide ${getColorClasses(
+                        task.color,
+                      )} ${task.completed ? "bg-[var(--status-completed-text)]/10 line-through opacity-75" : ""}`}
+                    >
+                      {task.title}
+                    </span>
+                  ))}
                 </div>
+              ) : (
+                <p className="font-mono text-[10px] uppercase tracking-wide text-foreground/40">no tasks yet</p>
+              )}
+            </button>
+          );
+        })}
+      </div>
 
-                {isAdmin ? (
-                  <div className="flex flex-wrap gap-2 border-t border-[var(--border-muted)] pt-3">
-                    {CURRENT_FOCUS_COLOR_OPTIONS.map((color) => {
-                      const isSelected = color === task.color;
+      <article className="space-y-4 border border-dashed border-[var(--border-muted)] bg-[var(--surface-elevated)] p-4">
+        <div className="space-y-1">
+          <p className="font-mono text-xs uppercase tracking-wider text-foreground/60">[ selected day ]</p>
+          <h3 className="font-mono text-base text-foreground md:text-lg">
+            {selectedDay ? getFullDateLabel(selectedDay.date) : "No day selected"}
+          </h3>
+          {selectedDay ? (
+            <p className="font-mono text-xs uppercase tracking-wide text-[var(--status-completed-text)]">
+              {getTaskProgress(selectedDay.tasks)}
+            </p>
+          ) : null}
+        </div>
 
-                      return (
+        {selectedDay && isAdmin ? (
+          <div className="space-y-3 border border-dashed border-[var(--border-muted)] bg-background/25 p-3">
+            <label className="block space-y-2">
+              <span className="font-mono text-xs uppercase tracking-wide text-foreground/60">New task</span>
+              <input
+                type="text"
+                value={newTaskTitle}
+                onChange={(event) => setNewTaskTitle(event.target.value)}
+                placeholder={`add a task for ${getDayLabel(selectedDay.date).toLowerCase()}`}
+                className="w-full min-w-0 border border-[var(--border-muted)] bg-background px-3 py-2 font-mono text-sm text-foreground outline-none transition-colors placeholder:text-foreground/35 focus:border-[var(--hover-border)]"
+              />
+            </label>
+
+            <div className="space-y-2">
+              <p className="font-mono text-xs uppercase tracking-wide text-foreground/60">Outline color</p>
+              <div className="flex flex-wrap gap-2">
+                {CURRENT_FOCUS_COLOR_OPTIONS.map((color) => {
+                  const isSelected = color === newTaskColor;
+
+                  return (
+                    <button
+                      key={color}
+                      type="button"
+                      onClick={() => setNewTaskColor(color)}
+                      className={`border px-2 py-1 font-mono text-[10px] uppercase tracking-wide transition-colors ${getColorClasses(
+                        color,
+                      )} ${isSelected ? "bg-foreground/8" : "hover:bg-background/50"}`}
+                    >
+                      {color}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <button
+              type="button"
+              disabled={isSaving || newTaskTitle.trim().length === 0}
+              onClick={() => {
+                void handleAddTask();
+              }}
+              className="border border-[var(--border-muted)] px-3 py-2 font-mono text-xs uppercase tracking-wide text-foreground transition-colors hover:bg-foreground hover:text-background disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              add task
+            </button>
+          </div>
+        ) : null}
+
+        {selectedDay ? (
+          selectedDay.tasks.length > 0 ? (
+            <div className="space-y-3">
+              {selectedDay.tasks.map((task) => (
+                <article
+                  key={task.id}
+                  className={`space-y-3 border bg-background/30 p-3 ${getColorClasses(task.color)} ${
+                    task.completed ? "opacity-70" : "opacity-100"
+                  }`}
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="space-y-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h4
+                          className={`font-mono text-sm md:text-base ${task.completed ? "line-through" : ""}`}
+                        >
+                          {task.title}
+                        </h4>
+                        <span
+                          className={`border px-2 py-1 font-mono text-[10px] uppercase tracking-wide ${getColorClasses(task.color)}`}
+                        >
+                          {task.color}
+                        </span>
+                        {task.completed ? (
+                          <span className="border border-[var(--status-completed-border)] px-2 py-1 font-mono text-[10px] uppercase tracking-wide text-[var(--status-completed-text)]">
+                            done
+                          </span>
+                        ) : null}
+                      </div>
+                    </div>
+
+                    {isAdmin ? (
+                      <div className="flex flex-wrap gap-2">
                         <button
-                          key={`${task.id}-${color}`}
                           type="button"
-                          disabled={isSaving || isSelected}
+                          disabled={isSaving}
                           onClick={() => {
                             void mutateBoard({
                               type: "update-task",
+                              date: selectedDay.date,
                               taskId: task.id,
-                              color,
+                              completed: !task.completed,
                             });
                           }}
-                          className={`border px-2 py-1 font-mono text-[10px] uppercase tracking-wide transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${getColorClasses(
-                            color,
-                          )} ${isSelected ? "bg-foreground/8" : "hover:bg-background/50"}`}
+                          className={`border px-3 py-2 font-mono text-xs uppercase tracking-wide transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
+                            task.completed
+                              ? "border-[var(--status-completed-border)] text-[var(--status-completed-text)] hover:bg-[var(--status-completed-text)]/10"
+                              : "border-[var(--border-muted)] text-foreground hover:bg-foreground hover:text-background"
+                          }`}
                         >
-                          {color}
+                          {task.completed ? "mark incomplete" : "mark complete"}
                         </button>
-                      );
-                    })}
+                        <button
+                          type="button"
+                          disabled={isSaving}
+                          onClick={() => {
+                            void mutateBoard({
+                              type: "delete-task",
+                              date: selectedDay.date,
+                              taskId: task.id,
+                            });
+                          }}
+                          className="border border-[var(--tag-rose-border)] px-3 py-2 font-mono text-xs uppercase tracking-wide text-[var(--tag-rose-text)] transition-colors hover:bg-[var(--tag-rose-text)]/10 disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                          delete
+                        </button>
+                      </div>
+                    ) : null}
                   </div>
-                ) : null}
-              </article>
-            ))}
-          </div>
+
+                  {isAdmin ? (
+                    <div className="flex flex-wrap gap-2 border-t border-[var(--border-muted)] pt-3">
+                      {CURRENT_FOCUS_COLOR_OPTIONS.map((color) => {
+                        const isSelected = color === task.color;
+
+                        return (
+                          <button
+                            key={`${task.id}-${color}`}
+                            type="button"
+                            disabled={isSaving || isSelected}
+                            onClick={() => {
+                              void mutateBoard({
+                                type: "update-task",
+                                date: selectedDay.date,
+                                taskId: task.id,
+                                color,
+                              });
+                            }}
+                            className={`border px-2 py-1 font-mono text-[10px] uppercase tracking-wide transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${getColorClasses(
+                              color,
+                            )} ${isSelected ? "bg-foreground/8" : "hover:bg-background/50"}`}
+                          >
+                            {color}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : null}
+                </article>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm leading-7 text-foreground/75">
+              No tasks added for this day yet.
+              {isAdmin ? " Use the form above to add the first one." : ""}
+            </p>
+          )
         ) : (
-          <p className="text-sm leading-7 text-foreground/75">
-            No tasks added for this week yet.
-            {editModeRequested ? " Unlock editing to start building the list." : ""}
-          </p>
+          <p className="text-sm leading-7 text-foreground/75">Select a day to review or edit its tasks.</p>
         )}
       </article>
     </section>

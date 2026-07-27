@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 
 import {
   isCurrentFocusColor,
+  isCurrentFocusWeekDate,
   type CurrentFocusBoard,
   type CurrentFocusColor,
 } from "@/app/current-focus/current-focus.data";
@@ -12,12 +13,14 @@ import { getCurrentFocusBoard, saveCurrentFocusBoard } from "@/app/lib/current-f
 
 type AddTaskAction = {
   type: "add-task";
+  date?: string;
   title?: string;
   color?: string;
 };
 
 type UpdateTaskAction = {
   type: "update-task";
+  date?: string;
   taskId?: string;
   title?: string;
   color?: string;
@@ -26,34 +29,35 @@ type UpdateTaskAction = {
 
 type DeleteTaskAction = {
   type: "delete-task";
+  date?: string;
   taskId?: string;
 };
 
 type BoardActionRequest = AddTaskAction | UpdateTaskAction | DeleteTaskAction;
 
-function updateBoardTask(
+function updateBoardDay(
   board: CurrentFocusBoard,
-  taskId: string,
-  updates: {
-    title?: string;
-    color?: CurrentFocusColor;
-    completed?: boolean;
-  },
+  date: string,
+  updater: (tasks: CurrentFocusBoard["days"][number]["tasks"]) => CurrentFocusBoard["days"][number]["tasks"] | null,
 ): CurrentFocusBoard | null {
   let updated = false;
 
-  const tasks = board.tasks.map((task) => {
-    if (task.id !== taskId) {
-      return task;
+  const days = board.days.map((day) => {
+    if (day.date !== date) {
+      return day;
+    }
+
+    const nextTasks = updater(day.tasks);
+
+    if (!nextTasks) {
+      return day;
     }
 
     updated = true;
 
     return {
-      ...task,
-      title: updates.title ?? task.title,
-      color: updates.color ?? task.color,
-      completed: updates.completed ?? task.completed,
+      ...day,
+      tasks: nextTasks,
     };
   });
 
@@ -63,8 +67,16 @@ function updateBoardTask(
 
   return {
     ...board,
-    tasks,
+    days,
   };
+}
+
+function validateWeekDate(board: CurrentFocusBoard, date: string | undefined): string | NextResponse {
+  if (typeof date !== "string" || !isCurrentFocusWeekDate(board.weekStart, date)) {
+    return NextResponse.json({ error: "Invalid week date." }, { status: 400 });
+  }
+
+  return date;
 }
 
 export async function GET() {
@@ -81,29 +93,45 @@ export async function PATCH(request: Request) {
   const board = await getCurrentFocusBoard();
 
   if (body.type === "add-task") {
+    const date = validateWeekDate(board, body.date);
+
+    if (typeof date !== "string") {
+      return date;
+    }
+
     const title = body.title?.trim();
 
     if (!title || !body.color || !isCurrentFocusColor(body.color)) {
       return NextResponse.json({ error: "Invalid task payload." }, { status: 400 });
     }
 
-    const nextBoard = await saveCurrentFocusBoard({
-      ...board,
-      tasks: [
-        ...board.tasks,
-        {
-          id: randomUUID(),
-          title,
-          color: body.color,
-          completed: false,
-        },
-      ],
-    });
+    const color = body.color as CurrentFocusColor;
 
-    return NextResponse.json({ board: nextBoard });
+    const nextBoard = updateBoardDay(board, date, (tasks) => [
+      ...tasks,
+      {
+        id: randomUUID(),
+        title,
+        color,
+        completed: false,
+      },
+    ]);
+
+    if (!nextBoard) {
+      return NextResponse.json({ error: "Day not found." }, { status: 404 });
+    }
+
+    const savedBoard = await saveCurrentFocusBoard(nextBoard);
+    return NextResponse.json({ board: savedBoard });
   }
 
   if (body.type === "update-task") {
+    const date = validateWeekDate(board, body.date);
+
+    if (typeof date !== "string") {
+      return date;
+    }
+
     if (typeof body.taskId !== "string") {
       return NextResponse.json({ error: "Task id is required." }, { status: 400 });
     }
@@ -122,10 +150,25 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: "Invalid completion value." }, { status: 400 });
     }
 
-    const nextBoard = updateBoardTask(board, body.taskId, {
-      title: nextTitle,
-      color: body.color,
-      completed: body.completed,
+    const nextBoard = updateBoardDay(board, date, (tasks) => {
+      let updated = false;
+
+      const nextTasks = tasks.map((task) => {
+        if (task.id !== body.taskId) {
+          return task;
+        }
+
+        updated = true;
+
+        return {
+          ...task,
+          title: nextTitle ?? task.title,
+          color: (body.color as CurrentFocusColor | undefined) ?? task.color,
+          completed: body.completed ?? task.completed,
+        };
+      });
+
+      return updated ? nextTasks : null;
     });
 
     if (!nextBoard) {
@@ -137,20 +180,30 @@ export async function PATCH(request: Request) {
   }
 
   if (body.type === "delete-task") {
+    const date = validateWeekDate(board, body.date);
+
+    if (typeof date !== "string") {
+      return date;
+    }
+
     if (typeof body.taskId !== "string") {
       return NextResponse.json({ error: "Task id is required." }, { status: 400 });
     }
 
-    if (!board.tasks.some((task) => task.id === body.taskId)) {
+    const nextBoard = updateBoardDay(board, date, (tasks) => {
+      if (!tasks.some((task) => task.id === body.taskId)) {
+        return null;
+      }
+
+      return tasks.filter((task) => task.id !== body.taskId);
+    });
+
+    if (!nextBoard) {
       return NextResponse.json({ error: "Task not found." }, { status: 404 });
     }
 
-    const nextBoard = await saveCurrentFocusBoard({
-      ...board,
-      tasks: board.tasks.filter((task) => task.id !== body.taskId),
-    });
-
-    return NextResponse.json({ board: nextBoard });
+    const savedBoard = await saveCurrentFocusBoard(nextBoard);
+    return NextResponse.json({ board: savedBoard });
   }
 
   return NextResponse.json({ error: "Invalid request body." }, { status: 400 });

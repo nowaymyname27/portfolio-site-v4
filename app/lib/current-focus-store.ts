@@ -2,7 +2,8 @@ import { kv } from "@vercel/kv";
 
 import {
   CURRENT_FOCUS_BOARD_KEY,
-  DEFAULT_CURRENT_FOCUS_BOARD,
+  createEmptyCurrentFocusBoard,
+  getCurrentFocusWeekStart,
   normalizeCurrentFocusBoard,
   type CurrentFocusBoard,
 } from "@/app/current-focus/current-focus.data";
@@ -12,12 +13,25 @@ function isKvConfigured(): boolean {
 }
 
 export async function getCurrentFocusBoard(): Promise<CurrentFocusBoard> {
+  const currentWeekStart = getCurrentFocusWeekStart();
+
   if (!isKvConfigured()) {
-    return DEFAULT_CURRENT_FOCUS_BOARD;
+    return createEmptyCurrentFocusBoard(currentWeekStart);
   }
 
   const board = await kv.get<CurrentFocusBoard>(CURRENT_FOCUS_BOARD_KEY);
-  return normalizeCurrentFocusBoard(board);
+
+  if (!board || typeof board !== "object") {
+    return createEmptyCurrentFocusBoard(currentWeekStart);
+  }
+
+  const candidateWeekStart = (board as Partial<CurrentFocusBoard>).weekStart;
+
+  if (candidateWeekStart !== currentWeekStart) {
+    return createEmptyCurrentFocusBoard(currentWeekStart);
+  }
+
+  return normalizeCurrentFocusBoard(board, currentWeekStart);
 }
 
 export async function saveCurrentFocusBoard(board: CurrentFocusBoard): Promise<CurrentFocusBoard> {
@@ -25,7 +39,7 @@ export async function saveCurrentFocusBoard(board: CurrentFocusBoard): Promise<C
     throw new Error("Vercel KV is not configured.");
   }
 
-  const normalizedBoard = normalizeCurrentFocusBoard(board);
+  const normalizedBoard = normalizeCurrentFocusBoard(board, board.weekStart);
   await kv.set(CURRENT_FOCUS_BOARD_KEY, normalizedBoard);
   return normalizedBoard;
 }

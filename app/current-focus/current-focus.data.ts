@@ -29,66 +29,134 @@ export type CurrentFocusTask = {
   completed: boolean;
 };
 
-export type CurrentFocusBoard = {
-  title: string;
-  description: string;
+export type CurrentFocusDay = {
+  date: string;
   tasks: CurrentFocusTask[];
 };
 
-export const DEFAULT_CURRENT_FOCUS_BOARD: CurrentFocusBoard = {
-  title: CURRENT_FOCUS_TITLE,
-  description: CURRENT_FOCUS_DESCRIPTION,
-  tasks: [],
+export type CurrentFocusBoard = {
+  weekStart: string;
+  title: string;
+  description: string;
+  days: CurrentFocusDay[];
 };
+
+function createUtcDate(date: string): Date {
+  return new Date(`${date}T00:00:00Z`);
+}
+
+function formatDateKey(date: Date): string {
+  return date.toISOString().slice(0, 10);
+}
+
+export function getCurrentFocusWeekStart(referenceDate = new Date()): string {
+  const weekStart = new Date(
+    Date.UTC(referenceDate.getUTCFullYear(), referenceDate.getUTCMonth(), referenceDate.getUTCDate()),
+  );
+  const dayOfWeek = weekStart.getUTCDay();
+  const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+
+  weekStart.setUTCDate(weekStart.getUTCDate() - daysFromMonday);
+  return formatDateKey(weekStart);
+}
+
+export function getCurrentFocusWeekDates(weekStart: string): string[] {
+  const start = createUtcDate(weekStart);
+
+  return Array.from({ length: 7 }, (_, index) => {
+    const day = new Date(start);
+    day.setUTCDate(start.getUTCDate() + index);
+    return formatDateKey(day);
+  });
+}
+
+export function createEmptyCurrentFocusBoard(weekStart = getCurrentFocusWeekStart()): CurrentFocusBoard {
+  return {
+    weekStart,
+    title: CURRENT_FOCUS_TITLE,
+    description: CURRENT_FOCUS_DESCRIPTION,
+    days: getCurrentFocusWeekDates(weekStart).map((date) => ({
+      date,
+      tasks: [],
+    })),
+  };
+}
 
 export function isCurrentFocusColor(value: string): value is CurrentFocusColor {
   return CURRENT_FOCUS_COLOR_OPTIONS.includes(value as CurrentFocusColor);
 }
 
-export function normalizeCurrentFocusBoard(board: unknown): CurrentFocusBoard {
+export function isCurrentFocusWeekDate(weekStart: string, date: string): boolean {
+  return getCurrentFocusWeekDates(weekStart).includes(date);
+}
+
+export function normalizeCurrentFocusBoard(board: unknown, weekStart = getCurrentFocusWeekStart()): CurrentFocusBoard {
+  const fallbackBoard = createEmptyCurrentFocusBoard(weekStart);
+
   if (!board || typeof board !== "object") {
-    return DEFAULT_CURRENT_FOCUS_BOARD;
+    return fallbackBoard;
   }
 
   const candidate = board as Partial<CurrentFocusBoard>;
-  const tasks = Array.isArray(candidate.tasks)
-    ? candidate.tasks.flatMap((task) => {
-        if (!task || typeof task !== "object") {
-          return [];
-        }
+  const daysByDate = new Map<string, CurrentFocusDay>();
 
-        const candidateTask = task as Partial<CurrentFocusTask>;
+  if (Array.isArray(candidate.days)) {
+    for (const day of candidate.days) {
+      if (!day || typeof day !== "object") {
+        continue;
+      }
 
-        if (
-          typeof candidateTask.id !== "string" ||
-          typeof candidateTask.title !== "string" ||
-          !isCurrentFocusColor(candidateTask.color ?? "") ||
-          typeof candidateTask.completed !== "boolean"
-        ) {
-          return [];
-        }
+      const candidateDay = day as Partial<CurrentFocusDay>;
 
-        const title = candidateTask.title.trim();
-        const color = candidateTask.color as CurrentFocusColor;
+      if (typeof candidateDay.date !== "string" || !isCurrentFocusWeekDate(weekStart, candidateDay.date)) {
+        continue;
+      }
 
-        if (title.length === 0) {
-          return [];
-        }
+      const tasks = Array.isArray(candidateDay.tasks)
+        ? candidateDay.tasks.flatMap((task) => {
+            if (!task || typeof task !== "object") {
+              return [];
+            }
 
-        return [
-          {
-            id: candidateTask.id,
-            title,
-            color,
-            completed: candidateTask.completed,
-          },
-        ];
-      })
-    : [];
+            const candidateTask = task as Partial<CurrentFocusTask>;
+
+            if (
+              typeof candidateTask.id !== "string" ||
+              typeof candidateTask.title !== "string" ||
+              !isCurrentFocusColor(candidateTask.color ?? "") ||
+              typeof candidateTask.completed !== "boolean"
+            ) {
+              return [];
+            }
+
+            const title = candidateTask.title.trim();
+
+            if (title.length === 0) {
+              return [];
+            }
+
+            return [
+              {
+                id: candidateTask.id,
+                title,
+                color: candidateTask.color as CurrentFocusColor,
+                completed: candidateTask.completed,
+              },
+            ];
+          })
+        : [];
+
+      daysByDate.set(candidateDay.date, {
+        date: candidateDay.date,
+        tasks,
+      });
+    }
+  }
 
   return {
+    weekStart,
     title: CURRENT_FOCUS_TITLE,
     description: CURRENT_FOCUS_DESCRIPTION,
-    tasks,
+    days: getCurrentFocusWeekDates(weekStart).map((date) => daysByDate.get(date) ?? { date, tasks: [] }),
   };
 }
