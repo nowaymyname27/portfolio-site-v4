@@ -23,7 +23,7 @@ const PROFILE_LINES = [
   },
   {
     label: "status",
-    value: "Working towards CCNA certification (Click to see progress!)",
+    value: "See what I am focused on this week",
     href: "/current-focus",
     labelClass: "text-[var(--profile-status)]",
   },
