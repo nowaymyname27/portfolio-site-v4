@@ -164,7 +164,7 @@ export async function PATCH(request: Request) {
           ...task,
           title: nextTitle ?? task.title,
           color: (body.color as CurrentFocusColor | undefined) ?? task.color,
-          completed: body.completed ?? task.completed,
+          completed: body.completed !== undefined ? body.completed : task.completed,
         };
       });
 
