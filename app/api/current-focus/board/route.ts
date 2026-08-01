@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 
 import {
+  resolveCurrentFocusWeekStart,
   isCurrentFocusColor,
   isCurrentFocusWeekDate,
   type CurrentFocusBoard,
@@ -79,8 +80,11 @@ function validateWeekDate(board: CurrentFocusBoard, date: string | undefined): s
   return date;
 }
 
-export async function GET() {
-  const board = await getCurrentFocusBoard();
+export async function GET(request: Request) {
+  const isAdmin = await isCurrentFocusAdmin();
+  const { searchParams } = new URL(request.url);
+  const weekStart = resolveCurrentFocusWeekStart(searchParams.get("week") ?? undefined, isAdmin);
+  const board = await getCurrentFocusBoard(weekStart);
   return NextResponse.json({ board });
 }
 
@@ -90,7 +94,9 @@ export async function PATCH(request: Request) {
   }
 
   const body = (await request.json()) as BoardActionRequest;
-  const board = await getCurrentFocusBoard();
+  const { searchParams } = new URL(request.url);
+  const weekStart = resolveCurrentFocusWeekStart(searchParams.get("week") ?? undefined, true);
+  const board = await getCurrentFocusBoard(weekStart);
 
   if (body.type === "add-task") {
     const date = validateWeekDate(board, body.date);

@@ -3,7 +3,7 @@ export const CURRENT_FOCUS_TITLE = "This Week's Focus";
 export const CURRENT_FOCUS_DESCRIPTION =
   "A flexible weekly list of what I am actively working through right now.";
 
-export const CURRENT_FOCUS_BOARD_KEY = "current-focus:board";
+export const CURRENT_FOCUS_BOARD_KEY_PREFIX = "current-focus:board";
 
 export const CURRENT_FOCUS_COLOR_OPTIONS = [
   "cyan",
@@ -58,6 +58,32 @@ export function getCurrentFocusWeekStart(referenceDate = new Date()): string {
 
   weekStart.setUTCDate(weekStart.getUTCDate() - daysFromMonday);
   return formatDateKey(weekStart);
+}
+
+export function getNextCurrentFocusWeekStart(referenceDate = new Date()): string {
+  const currentWeekStart = createUtcDate(getCurrentFocusWeekStart(referenceDate));
+  currentWeekStart.setUTCDate(currentWeekStart.getUTCDate() + 7);
+  return formatDateKey(currentWeekStart);
+}
+
+export function resolveCurrentFocusWeekStart(requestedWeek: string | undefined, isAdmin: boolean): string {
+  const currentWeekStart = getCurrentFocusWeekStart();
+
+  if (requestedWeek === currentWeekStart) {
+    return currentWeekStart;
+  }
+
+  const nextWeekStart = getNextCurrentFocusWeekStart();
+
+  if (isAdmin && requestedWeek === nextWeekStart) {
+    return nextWeekStart;
+  }
+
+  return currentWeekStart;
+}
+
+export function getCurrentFocusBoardKey(weekStart: string): string {
+  return `${CURRENT_FOCUS_BOARD_KEY_PREFIX}:${weekStart}`;
 }
 
 export function getCurrentFocusWeekDates(weekStart: string): string[] {

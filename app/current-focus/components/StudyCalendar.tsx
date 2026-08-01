@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import {
@@ -14,6 +16,8 @@ type StudyCalendarProps = {
   initialBoard: CurrentFocusBoard;
   editModeRequested: boolean;
   initialIsAdmin: boolean;
+  currentWeekStart: string;
+  nextWeekStart: string;
 };
 
 type BoardMutationResponse = {
@@ -86,6 +90,18 @@ function getTaskProgress(tasks: CurrentFocusTask[]): string {
   return `${completedCount} / ${tasks.length} done`;
 }
 
+function getBoardTitle(weekStart: string, currentWeekStart: string, nextWeekStart: string): string {
+  if (weekStart === nextWeekStart) {
+    return "Next Week's Focus";
+  }
+
+  if (weekStart === currentWeekStart) {
+    return "This Week's Focus";
+  }
+
+  return "Weekly Focus";
+}
+
 function getBoardProgress(days: CurrentFocusDay[]): string {
   const tasks = days.flatMap((day) => day.tasks);
   return getTaskProgress(tasks);
@@ -100,7 +116,10 @@ export default function StudyCalendar({
   initialBoard,
   editModeRequested,
   initialIsAdmin,
+  currentWeekStart,
+  nextWeekStart,
 }: StudyCalendarProps) {
+  const router = useRouter();
   const [board, setBoard] = useState<CurrentFocusBoard>(initialBoard);
   const [selectedDate, setSelectedDate] = useState<string>(() => getInitialSelectedDate(initialBoard.days));
   const [isAdmin, setIsAdmin] = useState<boolean>(initialIsAdmin);
@@ -112,12 +131,32 @@ export default function StudyCalendar({
   const [newTaskColor, setNewTaskColor] = useState<CurrentFocusColor>("cyan");
 
   const selectedDay = board.days.find((day) => day.date === selectedDate) ?? board.days[0] ?? null;
+  const isPlanningNextWeek = board.weekStart === nextWeekStart;
+
+  function getWeekHref(weekStart: string): string {
+    const searchParams = new URLSearchParams();
+
+    if (editModeRequested) {
+      searchParams.set("edit", "1");
+    }
+
+    if (weekStart !== currentWeekStart) {
+      searchParams.set("week", weekStart);
+    }
+
+    const query = searchParams.toString();
+    return query.length > 0 ? `/current-focus?${query}` : "/current-focus";
+  }
+
+  function getBoardApiUrl(): string {
+    return `/api/current-focus/board?week=${encodeURIComponent(board.weekStart)}`;
+  }
 
   async function mutateBoard(action: BoardAction): Promise<void> {
     setIsSaving(true);
     setAuthError(null);
 
-    const response = await fetch("/api/current-focus/board", {
+    const response = await fetch(getBoardApiUrl(), {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -130,9 +169,12 @@ export default function StudyCalendar({
 
       if (response.status === 401) {
         setIsAdmin(false);
-        setAuthError("Editing session expired. Unlock again to keep updating this week's focus.");
+        if (isPlanningNextWeek) {
+          router.push(getWeekHref(currentWeekStart));
+        }
+        setAuthError("Editing session expired. Unlock again to keep updating your selected week.");
       } else {
-        setAuthError(payload?.error ?? "Unable to update this week's focus.");
+        setAuthError(payload?.error ?? "Unable to update your selected week.");
       }
 
       setIsSaving(false);
@@ -179,6 +221,10 @@ export default function StudyCalendar({
     setIsAdmin(false);
     setAdminSecret("");
     setAuthError(null);
+
+    if (isPlanningNextWeek) {
+      router.push(getWeekHref(currentWeekStart));
+    }
   }
 
   async function handleAddTask(): Promise<void> {
@@ -212,7 +258,9 @@ export default function StudyCalendar({
           <p className="font-mono text-xs uppercase tracking-wider text-foreground/70">
             [ weekly task board ]
           </p>
-          <h2 className="mt-2 font-mono text-lg text-foreground md:text-xl">This Week&apos;s Focus</h2>
+          <h2 className="mt-2 font-mono text-lg text-foreground md:text-xl">
+            {getBoardTitle(board.weekStart, currentWeekStart, nextWeekStart)}
+          </h2>
           <p className="mt-2 font-mono text-xs uppercase tracking-wide text-foreground/60">
             {getWeekRangeLabel(board.weekStart)}
           </p>
@@ -231,7 +279,8 @@ export default function StudyCalendar({
                 [ progress editing ]
               </p>
               <p className="mt-1 text-sm leading-7 text-foreground/75">
-                Everyone can see the week. Only your unlocked session can add, update, or remove day tasks.
+                Everyone can see the current week. Only your unlocked session can add, update, or remove day
+                tasks and plan ahead for next week.
               </p>
             </div>
 
@@ -275,6 +324,31 @@ export default function StudyCalendar({
           )}
 
           {authError ? <p className="text-sm text-[var(--tag-amber-text)]">{authError}</p> : null}
+
+          {isAdmin ? (
+            <div className="flex flex-wrap gap-2 border-t border-[var(--border-muted)] pt-4">
+              <Link
+                href={getWeekHref(currentWeekStart)}
+                className={`border px-3 py-2 font-mono text-xs uppercase tracking-wide transition-colors ${
+                  !isPlanningNextWeek
+                    ? "border-[var(--hover-border)] bg-background text-foreground"
+                    : "border-[var(--border-muted)] text-foreground/70 hover:bg-background/50"
+                }`}
+              >
+                this week
+              </Link>
+              <Link
+                href={getWeekHref(nextWeekStart)}
+                className={`border px-3 py-2 font-mono text-xs uppercase tracking-wide transition-colors ${
+                  isPlanningNextWeek
+                    ? "border-[var(--hover-border)] bg-background text-foreground"
+                    : "border-[var(--border-muted)] text-foreground/70 hover:bg-background/50"
+                }`}
+              >
+                next week
+              </Link>
+            </div>
+          ) : null}
         </article>
       ) : null}
 

@@ -2,6 +2,11 @@ import type { Metadata } from "next";
 
 import GoalSummary from "@/app/current-focus/components/GoalSummary";
 import StudyCalendar from "@/app/current-focus/components/StudyCalendar";
+import {
+  getCurrentFocusWeekStart,
+  getNextCurrentFocusWeekStart,
+  resolveCurrentFocusWeekStart,
+} from "@/app/current-focus/current-focus.data";
 import { isCurrentFocusAdmin } from "@/app/lib/current-focus-admin";
 import { getCurrentFocusBoard } from "@/app/lib/current-focus-store";
 
@@ -15,20 +20,30 @@ export const dynamic = "force-dynamic";
 type CurrentFocusPageProps = {
   searchParams: Promise<{
     edit?: string;
+    week?: string;
   }>;
 };
 
 export default async function CurrentFocusPage({ searchParams }: CurrentFocusPageProps) {
-  const [{ edit }, board, isAdmin] = await Promise.all([
+  const [{ edit, week }, isAdmin] = await Promise.all([
     searchParams,
-    getCurrentFocusBoard(),
     isCurrentFocusAdmin(),
   ]);
+  const currentWeekStart = getCurrentFocusWeekStart();
+  const nextWeekStart = getNextCurrentFocusWeekStart();
+  const resolvedWeekStart = resolveCurrentFocusWeekStart(week, edit === "1" && isAdmin);
+  const board = await getCurrentFocusBoard(resolvedWeekStart);
 
   return (
     <div className="space-y-6 pb-8 pt-6 md:space-y-8 md:pb-10 md:pt-8">
       <GoalSummary />
-      <StudyCalendar initialBoard={board} editModeRequested={edit === "1"} initialIsAdmin={isAdmin} />
+      <StudyCalendar
+        initialBoard={board}
+        editModeRequested={edit === "1"}
+        initialIsAdmin={isAdmin}
+        currentWeekStart={currentWeekStart}
+        nextWeekStart={nextWeekStart}
+      />
     </div>
   );
 }
