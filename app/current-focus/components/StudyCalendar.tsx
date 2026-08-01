@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   CURRENT_FOCUS_COLOR_OPTIONS,
@@ -133,6 +133,16 @@ export default function StudyCalendar({
   const selectedDay = board.days.find((day) => day.date === selectedDate) ?? board.days[0] ?? null;
   const isPlanningNextWeek = board.weekStart === nextWeekStart;
 
+  useEffect(() => {
+    setBoard(initialBoard);
+    setSelectedDate(getInitialSelectedDate(initialBoard.days));
+    setAuthError(null);
+  }, [initialBoard]);
+
+  useEffect(() => {
+    setIsAdmin(initialIsAdmin);
+  }, [initialIsAdmin]);
+
   function getWeekHref(weekStart: string): string {
     const searchParams = new URLSearchParams();
 
@@ -211,6 +221,7 @@ export default function StudyCalendar({
 
     setAdminSecret("");
     setIsAdmin(true);
+    router.refresh();
   }
 
   async function handleEndEditing(): Promise<void> {
