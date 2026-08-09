@@ -142,6 +142,8 @@ export default function StudyCalendar({
   const [newPresetColor, setNewPresetColor] = useState<CurrentFocusColor>("cyan");
   const [editingPresetId, setEditingPresetId] = useState<string | null>(null);
   const [editingPresetTitle, setEditingPresetTitle] = useState<string>("");
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+  const [editingTaskTitle, setEditingTaskTitle] = useState<string>("");
 
   const selectedDay = board.days.find((day) => day.date === selectedDate) ?? board.days[0] ?? null;
   const isPlanningNextWeek = board.weekStart === nextWeekStart;
@@ -150,6 +152,8 @@ export default function StudyCalendar({
     setBoard(initialBoard);
     setSelectedDate(getInitialSelectedDate(initialBoard.days));
     setAuthError(null);
+    setEditingTaskId(null);
+    setEditingTaskTitle("");
   }, [initialBoard]);
 
   useEffect(() => {
@@ -426,6 +430,40 @@ export default function StudyCalendar({
     if (editingPresetId === presetId) {
       handleCancelEditingPreset();
     }
+  }
+
+  function handleStartEditingTask(task: CurrentFocusTask): void {
+    setEditingTaskId(task.id);
+    setEditingTaskTitle(task.title);
+    setAuthError(null);
+  }
+
+  function handleCancelEditingTask(): void {
+    setEditingTaskId(null);
+    setEditingTaskTitle("");
+  }
+
+  async function handleSaveTaskTitle(taskId: string): Promise<void> {
+    if (!selectedDay) {
+      setAuthError("No day selected.");
+      return;
+    }
+
+    const title = editingTaskTitle.trim();
+
+    if (title.length === 0) {
+      setAuthError("Task title cannot be empty.");
+      return;
+    }
+
+    await mutateBoard({
+      type: "update-task",
+      date: selectedDay.date,
+      taskId,
+      title,
+    });
+
+    handleCancelEditingTask();
   }
 
   return (
@@ -845,11 +883,31 @@ export default function StudyCalendar({
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="space-y-2">
                       <div className="flex flex-wrap items-center gap-2">
-                        <h4
-                          className={`font-mono text-sm md:text-base ${task.completed ? "line-through" : ""}`}
-                        >
-                          {task.title}
-                        </h4>
+                        {editingTaskId === task.id ? (
+                          <input
+                            type="text"
+                            value={editingTaskTitle}
+                            onChange={(event) => setEditingTaskTitle(event.target.value)}
+                            onKeyDown={(event) => {
+                              if (event.key === "Enter") {
+                                event.preventDefault();
+                                void handleSaveTaskTitle(task.id);
+                              }
+
+                              if (event.key === "Escape") {
+                                event.preventDefault();
+                                handleCancelEditingTask();
+                              }
+                            }}
+                            className="min-w-0 flex-1 border border-[var(--border-muted)] bg-background px-3 py-2 font-mono text-sm text-foreground outline-none transition-colors focus:border-[var(--hover-border)] md:text-base"
+                          />
+                        ) : (
+                          <h4
+                            className={`font-mono text-sm md:text-base ${task.completed ? "line-through" : ""}`}
+                          >
+                            {task.title}
+                          </h4>
+                        )}
                         <span
                           className={`border px-2 py-1 font-mono text-[10px] uppercase tracking-wide ${getColorClasses(task.color)}`}
                         >
@@ -865,25 +923,58 @@ export default function StudyCalendar({
 
                     {isAdmin ? (
                       <div className="flex flex-wrap gap-2">
-                        <button
-                          type="button"
-                          disabled={isSaving}
-                          onClick={() => {
-                            void mutateBoard({
-                              type: "update-task",
-                              date: selectedDay.date,
-                              taskId: task.id,
-                              completed: !task.completed,
-                            });
-                          }}
-                          className={`border px-3 py-2 font-mono text-xs uppercase tracking-wide transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
-                            task.completed
-                              ? "border-[var(--status-completed-border)] text-[var(--status-completed-text)] hover:bg-[var(--status-completed-text)]/10"
-                              : "border-[var(--border-muted)] text-foreground hover:bg-foreground hover:text-background"
-                          }`}
-                        >
-                          {task.completed ? "mark incomplete" : "mark complete"}
-                        </button>
+                        {editingTaskId === task.id ? (
+                          <>
+                            <button
+                              type="button"
+                              disabled={isSaving || editingTaskTitle.trim().length === 0}
+                              onClick={() => {
+                                void handleSaveTaskTitle(task.id);
+                              }}
+                              className="border border-[var(--border-muted)] px-3 py-2 font-mono text-xs uppercase tracking-wide text-foreground transition-colors hover:bg-foreground hover:text-background disabled:cursor-not-allowed disabled:opacity-40"
+                            >
+                              save
+                            </button>
+                            <button
+                              type="button"
+                              disabled={isSaving}
+                              onClick={handleCancelEditingTask}
+                              className="border border-[var(--border-muted)] px-3 py-2 font-mono text-xs uppercase tracking-wide text-foreground/70 transition-colors hover:bg-background/50 disabled:cursor-not-allowed disabled:opacity-40"
+                            >
+                              cancel
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              type="button"
+                              disabled={isSaving}
+                              onClick={() => handleStartEditingTask(task)}
+                              className="border border-[var(--border-muted)] px-3 py-2 font-mono text-xs uppercase tracking-wide text-foreground transition-colors hover:bg-foreground hover:text-background disabled:cursor-not-allowed disabled:opacity-40"
+                            >
+                              edit
+                            </button>
+                            <button
+                              type="button"
+                              disabled={isSaving}
+                              onClick={() => {
+                                void mutateBoard({
+                                  type: "update-task",
+                                  date: selectedDay.date,
+                                  taskId: task.id,
+                                  completed: !task.completed,
+                                });
+                              }}
+                              className={`border px-3 py-2 font-mono text-xs uppercase tracking-wide transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
+                                task.completed
+                                  ? "border-[var(--status-completed-border)] text-[var(--status-completed-text)] hover:bg-[var(--status-completed-text)]/10"
+                                  : "border-[var(--border-muted)] text-foreground hover:bg-foreground hover:text-background"
+                              }`}
+                            >
+                              {task.completed ? "mark incomplete" : "mark complete"}
+                            </button>
+                          </>
+                        )}
                         <button
                           type="button"
                           disabled={isSaving}
