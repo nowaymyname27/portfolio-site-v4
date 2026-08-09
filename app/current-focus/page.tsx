@@ -8,6 +8,7 @@ import {
   resolveCurrentFocusWeekStart,
 } from "@/app/current-focus/current-focus.data";
 import { isCurrentFocusAdmin } from "@/app/lib/current-focus-admin";
+import { getCurrentFocusTaskPresets } from "@/app/lib/current-focus-preset-store";
 import { getCurrentFocusBoard } from "@/app/lib/current-focus-store";
 
 export const metadata: Metadata = {
@@ -32,7 +33,10 @@ export default async function CurrentFocusPage({ searchParams }: CurrentFocusPag
   const currentWeekStart = getCurrentFocusWeekStart();
   const nextWeekStart = getNextCurrentFocusWeekStart();
   const resolvedWeekStart = resolveCurrentFocusWeekStart(week, edit === "1" && isAdmin);
-  const board = await getCurrentFocusBoard(resolvedWeekStart);
+  const [board, presets] = await Promise.all([
+    getCurrentFocusBoard(resolvedWeekStart),
+    getCurrentFocusTaskPresets(),
+  ]);
 
   return (
     <div className="space-y-6 pb-8 pt-6 md:space-y-8 md:pb-10 md:pt-8">
@@ -43,6 +47,7 @@ export default async function CurrentFocusPage({ searchParams }: CurrentFocusPag
         initialIsAdmin={isAdmin}
         currentWeekStart={currentWeekStart}
         nextWeekStart={nextWeekStart}
+        initialPresets={presets}
       />
     </div>
   );

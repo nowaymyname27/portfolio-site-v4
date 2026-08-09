@@ -4,6 +4,7 @@ export const CURRENT_FOCUS_DESCRIPTION =
   "A flexible weekly list of what I am actively working through right now.";
 
 export const CURRENT_FOCUS_BOARD_KEY_PREFIX = "current-focus:board";
+export const CURRENT_FOCUS_TASK_PRESETS_KEY = "current-focus:task-presets";
 
 export const CURRENT_FOCUS_COLOR_OPTIONS = [
   "cyan",
@@ -27,6 +28,12 @@ export type CurrentFocusTask = {
   title: string;
   color: CurrentFocusColor;
   completed: boolean;
+};
+
+export type CurrentFocusTaskPreset = {
+  id: string;
+  title: string;
+  color: CurrentFocusColor;
 };
 
 export type CurrentFocusDay = {
@@ -185,4 +192,40 @@ export function normalizeCurrentFocusBoard(board: unknown, weekStart = getCurren
     description: CURRENT_FOCUS_DESCRIPTION,
     days: getCurrentFocusWeekDates(weekStart).map((date) => daysByDate.get(date) ?? { date, tasks: [] }),
   };
+}
+
+export function normalizeCurrentFocusTaskPresets(presets: unknown): CurrentFocusTaskPreset[] {
+  if (!Array.isArray(presets)) {
+    return [];
+  }
+
+  return presets.flatMap((preset) => {
+    if (!preset || typeof preset !== "object") {
+      return [];
+    }
+
+    const candidatePreset = preset as Partial<CurrentFocusTaskPreset>;
+
+    if (
+      typeof candidatePreset.id !== "string" ||
+      typeof candidatePreset.title !== "string" ||
+      !isCurrentFocusColor(candidatePreset.color ?? "")
+    ) {
+      return [];
+    }
+
+    const title = candidatePreset.title.trim();
+
+    if (title.length === 0) {
+      return [];
+    }
+
+    return [
+      {
+        id: candidatePreset.id,
+        title,
+        color: candidatePreset.color as CurrentFocusColor,
+      },
+    ];
+  });
 }

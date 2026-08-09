@@ -10,10 +10,12 @@ import {
   type CurrentFocusColor,
   type CurrentFocusDay,
   type CurrentFocusTask,
+  type CurrentFocusTaskPreset,
 } from "@/app/current-focus/current-focus.data";
 
 type StudyCalendarProps = {
   initialBoard: CurrentFocusBoard;
+  initialPresets: CurrentFocusTaskPreset[];
   editModeRequested: boolean;
   initialIsAdmin: boolean;
   currentWeekStart: string;
@@ -22,6 +24,10 @@ type StudyCalendarProps = {
 
 type BoardMutationResponse = {
   board: CurrentFocusBoard;
+};
+
+type PresetMutationResponse = {
+  presets: CurrentFocusTaskPreset[];
 };
 
 type BoardAction =
@@ -114,6 +120,7 @@ function getInitialSelectedDate(days: CurrentFocusDay[]): string {
 
 export default function StudyCalendar({
   initialBoard,
+  initialPresets,
   editModeRequested,
   initialIsAdmin,
   currentWeekStart,
@@ -127,8 +134,14 @@ export default function StudyCalendar({
   const [authError, setAuthError] = useState<string | null>(null);
   const [isUnlocking, setIsUnlocking] = useState<boolean>(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [isSavingPreset, setIsSavingPreset] = useState<boolean>(false);
   const [newTaskTitle, setNewTaskTitle] = useState<string>("");
   const [newTaskColor, setNewTaskColor] = useState<CurrentFocusColor>("cyan");
+  const [presets, setPresets] = useState<CurrentFocusTaskPreset[]>(initialPresets);
+  const [newPresetTitle, setNewPresetTitle] = useState<string>("");
+  const [newPresetColor, setNewPresetColor] = useState<CurrentFocusColor>("cyan");
+  const [editingPresetId, setEditingPresetId] = useState<string | null>(null);
+  const [editingPresetTitle, setEditingPresetTitle] = useState<string>("");
 
   const selectedDay = board.days.find((day) => day.date === selectedDate) ?? board.days[0] ?? null;
   const isPlanningNextWeek = board.weekStart === nextWeekStart;
@@ -138,6 +151,10 @@ export default function StudyCalendar({
     setSelectedDate(getInitialSelectedDate(initialBoard.days));
     setAuthError(null);
   }, [initialBoard]);
+
+  useEffect(() => {
+    setPresets(initialPresets);
+  }, [initialPresets]);
 
   useEffect(() => {
     setIsAdmin(initialIsAdmin);
@@ -160,6 +177,54 @@ export default function StudyCalendar({
 
   function getBoardApiUrl(): string {
     return `/api/current-focus/board?week=${encodeURIComponent(board.weekStart)}`;
+  }
+
+  function getPresetApiUrl(): string {
+    return "/api/current-focus/presets";
+  }
+
+  function resetPresetForm(): void {
+    setNewPresetTitle("");
+    setNewPresetColor("cyan");
+  }
+
+  function isPresetOnSelectedDay(preset: CurrentFocusTaskPreset): boolean {
+    return selectedDay?.tasks.some((task) => task.title.toLowerCase() === preset.title.toLowerCase()) ?? false;
+  }
+
+  async function mutatePresets(options: RequestInit): Promise<CurrentFocusTaskPreset[] | null> {
+    setIsSavingPreset(true);
+    setAuthError(null);
+
+    const response = await fetch(getPresetApiUrl(), {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...(options.headers ?? {}),
+      },
+    });
+
+    if (!response.ok) {
+      const payload = (await response.json().catch(() => null)) as { error?: string } | null;
+
+      if (response.status === 401) {
+        setIsAdmin(false);
+        if (isPlanningNextWeek) {
+          router.push(getWeekHref(currentWeekStart));
+        }
+        setAuthError("Editing session expired. Unlock again to keep managing saved tasks.");
+      } else {
+        setAuthError(payload?.error ?? "Unable to update saved tasks.");
+      }
+
+      setIsSavingPreset(false);
+      return null;
+    }
+
+    const data = (await response.json()) as PresetMutationResponse;
+    setPresets(data.presets);
+    setIsSavingPreset(false);
+    return data.presets;
   }
 
   async function mutateBoard(action: BoardAction): Promise<void> {
@@ -260,6 +325,107 @@ export default function StudyCalendar({
 
     setNewTaskTitle("");
     setNewTaskColor("cyan");
+  }
+
+  async function handleAddPresetTask(preset: CurrentFocusTaskPreset): Promise<void> {
+    if (!selectedDay) {
+      setAuthError("No day selected.");
+      return;
+    }
+
+    if (isPresetOnSelectedDay(preset)) {
+      setAuthError("That saved task is already on this day.");
+      return;
+    }
+
+    await mutateBoard({
+      type: "add-task",
+      date: selectedDay.date,
+      title: preset.title,
+      color: preset.color,
+    });
+  }
+
+  async function handleCreatePreset(): Promise<void> {
+    const title = newPresetTitle.trim();
+
+    if (title.length === 0) {
+      setAuthError("Enter a saved task title before adding it.");
+      return;
+    }
+
+    const nextPresets = await mutatePresets({
+      method: "POST",
+      body: JSON.stringify({
+        title,
+        color: newPresetColor,
+      }),
+    });
+
+    if (!nextPresets) {
+      return;
+    }
+
+    resetPresetForm();
+  }
+
+  function handleStartEditingPreset(preset: CurrentFocusTaskPreset): void {
+    setEditingPresetId(preset.id);
+    setEditingPresetTitle(preset.title);
+    setAuthError(null);
+  }
+
+  function handleCancelEditingPreset(): void {
+    setEditingPresetId(null);
+    setEditingPresetTitle("");
+  }
+
+  async function handleSavePresetTitle(presetId: string): Promise<void> {
+    const title = editingPresetTitle.trim();
+
+    if (title.length === 0) {
+      setAuthError("Saved task title cannot be empty.");
+      return;
+    }
+
+    const nextPresets = await mutatePresets({
+      method: "PATCH",
+      body: JSON.stringify({
+        id: presetId,
+        title,
+      }),
+    });
+
+    if (!nextPresets) {
+      return;
+    }
+
+    handleCancelEditingPreset();
+  }
+
+  async function handleUpdatePresetColor(presetId: string, color: CurrentFocusColor): Promise<void> {
+    await mutatePresets({
+      method: "PATCH",
+      body: JSON.stringify({
+        id: presetId,
+        color,
+      }),
+    });
+  }
+
+  async function handleDeletePreset(presetId: string): Promise<void> {
+    const nextPresets = await mutatePresets({
+      method: "DELETE",
+      body: JSON.stringify({ id: presetId }),
+    });
+
+    if (!nextPresets) {
+      return;
+    }
+
+    if (editingPresetId === presetId) {
+      handleCancelEditingPreset();
+    }
   }
 
   return (
@@ -424,6 +590,202 @@ export default function StudyCalendar({
 
         {selectedDay && isAdmin ? (
           <div className="space-y-3 border border-dashed border-[var(--border-muted)] bg-background/25 p-3">
+            <div className="space-y-2">
+              <p className="font-mono text-xs uppercase tracking-wide text-foreground/60">Saved tasks</p>
+
+              <div className="space-y-3 border border-dashed border-[var(--border-muted)] bg-background/30 p-3">
+                <div className="space-y-2">
+                  <label className="block space-y-2">
+                    <span className="font-mono text-xs uppercase tracking-wide text-foreground/60">Add saved task</span>
+                    <input
+                      type="text"
+                      value={newPresetTitle}
+                      onChange={(event) => setNewPresetTitle(event.target.value)}
+                      placeholder="for example: flashcards"
+                      className="w-full min-w-0 border border-[var(--border-muted)] bg-background px-3 py-2 font-mono text-sm text-foreground outline-none transition-colors placeholder:text-foreground/35 focus:border-[var(--hover-border)]"
+                    />
+                  </label>
+
+                  <div className="space-y-2">
+                    <p className="font-mono text-xs uppercase tracking-wide text-foreground/60">Default color</p>
+                    <div className="flex flex-wrap gap-2">
+                      {CURRENT_FOCUS_COLOR_OPTIONS.map((color) => {
+                        const isSelected = color === newPresetColor;
+
+                        return (
+                          <button
+                            key={`new-preset-${color}`}
+                            type="button"
+                            onClick={() => setNewPresetColor(color)}
+                            className={`border px-2 py-1 font-mono text-[10px] uppercase tracking-wide transition-colors ${getColorClasses(
+                              color,
+                            )} ${isSelected ? "bg-foreground/8" : "hover:bg-background/50"}`}
+                          >
+                            {color}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    disabled={isSavingPreset || newPresetTitle.trim().length === 0}
+                    onClick={() => {
+                      void handleCreatePreset();
+                    }}
+                    className="border border-[var(--border-muted)] px-3 py-2 font-mono text-xs uppercase tracking-wide text-foreground transition-colors hover:bg-foreground hover:text-background disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    save task
+                  </button>
+                </div>
+
+                {presets.length > 0 ? (
+                  <div className="space-y-3 border-t border-[var(--border-muted)] pt-3">
+                    {presets.map((preset) => {
+                      const isEditing = editingPresetId === preset.id;
+
+                      return (
+                        <article key={preset.id} className="space-y-3 border border-[var(--border-muted)] bg-background/30 p-3">
+                          <div className="flex flex-wrap items-start justify-between gap-3">
+                            <div className="min-w-0 flex-1 space-y-2">
+                              {isEditing ? (
+                                <label className="block space-y-2">
+                                  <span className="font-mono text-xs uppercase tracking-wide text-foreground/60">
+                                    Saved task name
+                                  </span>
+                                  <input
+                                    type="text"
+                                    value={editingPresetTitle}
+                                    onChange={(event) => setEditingPresetTitle(event.target.value)}
+                                    className="w-full min-w-0 border border-[var(--border-muted)] bg-background px-3 py-2 font-mono text-sm text-foreground outline-none transition-colors focus:border-[var(--hover-border)]"
+                                  />
+                                </label>
+                              ) : (
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <p className="font-mono text-sm text-foreground">{preset.title}</p>
+                                  <span
+                                    className={`border px-2 py-1 font-mono text-[10px] uppercase tracking-wide ${getColorClasses(
+                                      preset.color,
+                                    )}`}
+                                  >
+                                    {preset.color}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+
+                            <div className="flex flex-wrap gap-2">
+                              <button
+                                type="button"
+                                disabled={isSaving || isSavingPreset || isPresetOnSelectedDay(preset)}
+                                onClick={() => {
+                                  void handleAddPresetTask(preset);
+                                }}
+                                className="border border-[var(--border-muted)] px-3 py-2 font-mono text-xs uppercase tracking-wide text-foreground transition-colors hover:bg-foreground hover:text-background disabled:cursor-not-allowed disabled:opacity-40"
+                              >
+                                {isPresetOnSelectedDay(preset) ? "already added" : "add to day"}
+                              </button>
+
+                              {isEditing ? (
+                                <>
+                                  <button
+                                    type="button"
+                                    disabled={isSavingPreset || editingPresetTitle.trim().length === 0}
+                                    onClick={() => {
+                                      void handleSavePresetTitle(preset.id);
+                                    }}
+                                    className="border border-[var(--border-muted)] px-3 py-2 font-mono text-xs uppercase tracking-wide text-foreground transition-colors hover:bg-foreground hover:text-background disabled:cursor-not-allowed disabled:opacity-40"
+                                  >
+                                    save
+                                  </button>
+                                  <button
+                                    type="button"
+                                    disabled={isSavingPreset}
+                                    onClick={handleCancelEditingPreset}
+                                    className="border border-[var(--border-muted)] px-3 py-2 font-mono text-xs uppercase tracking-wide text-foreground/70 transition-colors hover:bg-background/50 disabled:cursor-not-allowed disabled:opacity-40"
+                                  >
+                                    cancel
+                                  </button>
+                                </>
+                              ) : (
+                                <button
+                                  type="button"
+                                  disabled={isSavingPreset}
+                                  onClick={() => handleStartEditingPreset(preset)}
+                                  className="border border-[var(--border-muted)] px-3 py-2 font-mono text-xs uppercase tracking-wide text-foreground transition-colors hover:bg-foreground hover:text-background disabled:cursor-not-allowed disabled:opacity-40"
+                                >
+                                  edit
+                                </button>
+                              )}
+
+                              <button
+                                type="button"
+                                disabled={isSavingPreset}
+                                onClick={() => {
+                                  void handleDeletePreset(preset.id);
+                                }}
+                                className="border border-[var(--tag-rose-border)] px-3 py-2 font-mono text-xs uppercase tracking-wide text-[var(--tag-rose-text)] transition-colors hover:bg-[var(--tag-rose-text)]/10 disabled:cursor-not-allowed disabled:opacity-40"
+                              >
+                                delete
+                              </button>
+                            </div>
+                          </div>
+
+                          <div className="flex flex-wrap gap-2 border-t border-[var(--border-muted)] pt-3">
+                            {CURRENT_FOCUS_COLOR_OPTIONS.map((color) => {
+                              const isSelected = color === preset.color;
+
+                              return (
+                                <button
+                                  key={`${preset.id}-${color}`}
+                                  type="button"
+                                  disabled={isSavingPreset || isSelected}
+                                  onClick={() => {
+                                    void handleUpdatePresetColor(preset.id, color);
+                                  }}
+                                  className={`border px-2 py-1 font-mono text-[10px] uppercase tracking-wide transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${getColorClasses(
+                                    color,
+                                  )} ${isSelected ? "bg-foreground/8" : "hover:bg-background/50"}`}
+                                >
+                                  {color}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </article>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="text-sm leading-7 text-foreground/75">No saved tasks yet. Add one here to reuse it every week.</p>
+                )}
+              </div>
+            </div>
+
+            {presets.length > 0 ? (
+              <div className="space-y-2">
+                <p className="font-mono text-xs uppercase tracking-wide text-foreground/60">Quick add saved task</p>
+                <div className="flex flex-wrap gap-2">
+                  {presets.map((preset) => (
+                    <button
+                      key={`quick-add-${preset.id}`}
+                      type="button"
+                      disabled={isSaving || isPresetOnSelectedDay(preset)}
+                      onClick={() => {
+                        void handleAddPresetTask(preset);
+                      }}
+                      className={`border px-2 py-1 font-mono text-[10px] uppercase tracking-wide transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${getColorClasses(
+                        preset.color,
+                      )} ${isPresetOnSelectedDay(preset) ? "bg-foreground/8" : "hover:bg-background/50"}`}
+                    >
+                      {preset.title}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
             <label className="block space-y-2">
               <span className="font-mono text-xs uppercase tracking-wide text-foreground/60">New task</span>
               <input
