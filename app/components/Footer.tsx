@@ -1,6 +1,22 @@
-const LAST_UPDATED = "March 2026";
+import { getLatestRepositoryCommit } from "@/app/lib/github";
 
-export default function Footer() {
+const PORTFOLIO_REPOSITORY_OWNER = "nowaymyname27";
+const PORTFOLIO_REPOSITORY_NAME = "portfolio-site-v4";
+
+function formatLastUpdated(date: string): string {
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(new Date(date));
+}
+
+export default async function Footer() {
+  const latestCommit = await getLatestRepositoryCommit(
+    PORTFOLIO_REPOSITORY_OWNER,
+    PORTFOLIO_REPOSITORY_NAME,
+  );
+
   return (
     <footer
       id="contact"
@@ -67,7 +83,19 @@ export default function Footer() {
             willing to relocate (NYC preferred, open elsewhere)
           </p>
           <p className="md:text-right">
-            <span className="text-foreground/60">last updated:</span> {LAST_UPDATED}
+            <span className="text-foreground/60">last updated:</span>{" "}
+            {latestCommit ? (
+              <a
+                href={latestCommit.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline decoration-dotted underline-offset-4 transition-colors hover:text-[var(--link-accent)]"
+              >
+                {formatLastUpdated(latestCommit.occurredAt)} ({latestCommit.shortSha})
+              </a>
+            ) : (
+              <span>Unavailable</span>
+            )}
           </p>
         </div>
 

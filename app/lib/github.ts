@@ -43,6 +43,7 @@ type GithubRepository = {
 };
 
 type GithubCommit = {
+  sha: string;
   html_url: string;
   commit: {
     message: string;
@@ -95,6 +96,13 @@ export type ContributionColumnsFeed = {
   deployments: ContributionItem[];
   contributionCalendar: ContributionCalendarWeek[];
   partialError: boolean;
+};
+
+export type LatestRepositoryCommit = {
+  sha: string;
+  shortSha: string;
+  url: string;
+  occurredAt: string;
 };
 
 const GITHUB_GRAPHQL_ENDPOINT = "https://api.github.com/graphql";
@@ -430,4 +438,44 @@ export async function getRecentContributionColumns(
     contributionCalendar,
     partialError,
   };
+}
+
+export async function getLatestRepositoryCommit(
+  owner: string,
+  repository: string,
+): Promise<LatestRepositoryCommit | null> {
+  try {
+    const token = getGithubToken();
+    const response = await fetch(
+      `${GITHUB_REST_ENDPOINT}/repos/${owner}/${repository}/commits?per_page=1`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/vnd.github+json",
+        },
+        next: { revalidate: 21600 },
+      },
+    );
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const commits = (await response.json()) as GithubCommit[];
+    const commit = commits[0];
+    const occurredAt = commit?.commit?.author?.date;
+
+    if (!commit?.sha || !commit.html_url || !occurredAt) {
+      return null;
+    }
+
+    return {
+      sha: commit.sha,
+      shortSha: commit.sha.slice(0, 7),
+      url: commit.html_url,
+      occurredAt,
+    };
+  } catch {
+    return null;
+  }
 }
