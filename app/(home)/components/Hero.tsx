@@ -23,7 +23,7 @@ const PROFILE_LINES = [
   },
   {
     label: "status",
-    value: "See what I am focused on this week",
+    value: "Working towards CCNA certification",
     href: "/current-focus",
     labelClass: "text-[var(--profile-status)]",
   },
@@ -62,12 +62,13 @@ export default function Hero() {
           </p>
           <div className="space-y-4 text-base leading-8 text-foreground/90">
             <p>
-              Much of my professional experience has focused on front-end web
-              design, but my strongest technical interest is low-level systems
-              programming. I enjoy building efficient, high-performance software
-              and solving problems with languages like C and Zig. I am actively
-              contributing to open source while expanding my skills across
-              systems and networking.
+              Computer Science graduate from Boston University with a strong
+              interest in software engineering. I enjoy building things for the
+              web and have experience creating full-stack websites from
+              scratch. I&apos;ve worked on team projects in school, done freelance
+              web design, and handled real estate data using MongoDB. I&apos;ve
+              recently taken on more responsibilities in the IT department and
+              am actively working toward my CCNA certification.
             </p>
           </div>
         </div>

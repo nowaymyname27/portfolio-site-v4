@@ -11,7 +11,7 @@ export type ExperienceItem = {
   details: string[];
   href?: string;
   tools?: ExperienceTool[];
-  isCurrent?: boolean;
+  status?: "current" | "in-progress";
   hoverBorderClass?: string;
 };
 
@@ -95,12 +95,12 @@ export const EXPERIENCE_ENTRIES: ExperienceItem[] = [
   {
     id: "rentportfolio",
     organization: "RentPortfolio",
-    title: "Freelance Web Designer",
-    dateRange: "September - December 2025",
+    title: "Web Developer & IT Specialist",
+    dateRange: "September - Present",
     details: [
-      "Designed and developed a fully responsive real estate website aligned with branding and business goals.",
-      "Worked closely with the client through iterative feedback cycles to refine UX and final delivery.",
-      "Implemented efficient workflows for fast updates and clear communication throughout the project.",
+      "Designed and developed a fully responsive real estate website, helping shape branding, layout, and functionality around business needs.",
+      "Collaborated closely with the client through iterative feedback cycles to refine the user experience and ensure the final product met requirements.",
+      "Implemented an efficient backend workflow so the client could manage the site without ongoing assistance, making future updates easier.",
     ],
     tools: [
       {
@@ -128,6 +128,7 @@ export const EXPERIENCE_ENTRIES: ExperienceItem[] = [
         colorClass: "border-[var(--tag-zinc-border)] text-[var(--tag-zinc-text)]",
       },
     ],
+    status: "current",
     hoverBorderClass: "hover:border-[var(--hover-border)]",
   },
   {
@@ -139,7 +140,7 @@ export const EXPERIENCE_ENTRIES: ExperienceItem[] = [
     details: [
       "Building stronger networking fundamentals with consistent hands-on practice and structured study.",
     ],
-    isCurrent: true,
+    status: "in-progress",
     hoverBorderClass: "hover:border-[var(--hover-border)]",
   },
 ];

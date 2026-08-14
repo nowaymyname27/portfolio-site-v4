@@ -18,8 +18,10 @@ export default function ExperienceTimeline() {
             <span
               aria-hidden="true"
               className={`absolute -left-[31px] top-6 h-3 w-3 rounded-full border ${
-                entry.isCurrent
+                entry.status === "current"
                   ? "border-[var(--status-completed-border)] bg-[var(--status-completed-text)] motion-safe:animate-pulse"
+                  : entry.status === "in-progress"
+                    ? "border-[var(--status-progress-border)] bg-[var(--status-progress-text)]"
                   : "border-[var(--border-muted)] bg-background"
               }`}
             />
@@ -31,20 +33,32 @@ export default function ExperienceTimeline() {
             >
               <header className="space-y-2">
                 <p className="font-mono text-xs uppercase tracking-wider text-foreground/60">
-                  {entry.isCurrent ? "head -> now" : `commit ${entry.id}`}
+                  {entry.status === "current"
+                    ? "head -> now"
+                    : entry.status === "in-progress"
+                      ? "working tree"
+                      : `commit ${entry.id}`}
                 </p>
 
                 <div className="flex flex-wrap items-center gap-2">
                   <h3 className="font-mono text-base text-foreground md:text-lg">
                     {entry.title}
                   </h3>
-                  {entry.isCurrent ? (
+                  {entry.status === "current" ? (
                     <span className="inline-flex items-center gap-2 border border-[var(--status-completed-border)] px-2 py-1 font-mono text-xs uppercase tracking-wide text-[var(--status-completed-text)]">
                       <span
                         aria-label="Live status indicator"
                         className="h-2 w-2 rounded-full bg-[var(--status-completed-text)] motion-safe:animate-pulse"
                       />
                       live
+                    </span>
+                  ) : entry.status === "in-progress" ? (
+                    <span className="inline-flex items-center gap-2 border border-[var(--status-progress-border)] px-2 py-1 font-mono text-xs uppercase tracking-wide text-[var(--status-progress-text)]">
+                      <span
+                        aria-label="In-progress status indicator"
+                        className="h-2 w-2 rounded-full bg-[var(--status-progress-text)]"
+                      />
+                      pending
                     </span>
                   ) : null}
                 </div>
