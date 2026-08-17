@@ -628,10 +628,15 @@ export default function StudyCalendar({
 
         {selectedDay && isAdmin ? (
           <div className="space-y-3 border border-dashed border-[var(--border-muted)] bg-background/25 p-3">
-            <div className="space-y-2">
-              <p className="font-mono text-xs uppercase tracking-wide text-foreground/60">Saved tasks</p>
+            <details className="group border border-dashed border-[var(--border-muted)] bg-background/30">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-3 font-mono text-xs uppercase tracking-wide text-foreground/60 marker:hidden">
+                <span>Saved tasks ({presets.length})</span>
+                <span className="text-foreground/45 transition-transform group-open:rotate-180">
+                  v
+                </span>
+              </summary>
 
-              <div className="space-y-3 border border-dashed border-[var(--border-muted)] bg-background/30 p-3">
+              <div className="space-y-3 border-t border-[var(--border-muted)] p-3">
                 <div className="space-y-2">
                   <label className="block space-y-2">
                     <span className="font-mono text-xs uppercase tracking-wide text-foreground/60">Add saved task</span>
@@ -799,7 +804,7 @@ export default function StudyCalendar({
                   <p className="text-sm leading-7 text-foreground/75">No saved tasks yet. Add one here to reuse it every week.</p>
                 )}
               </div>
-            </div>
+            </details>
 
             {presets.length > 0 ? (
               <div className="space-y-2">
