@@ -5,6 +5,7 @@ import StudyCalendar from "@/app/current-focus/components/StudyCalendar";
 import {
   getCurrentFocusWeekStart,
   getNextCurrentFocusWeekStart,
+  getPreviousCurrentFocusWeekStart,
   resolveCurrentFocusWeekStart,
 } from "@/app/current-focus/current-focus.data";
 import { isCurrentFocusAdmin } from "@/app/lib/current-focus-admin";
@@ -33,9 +34,11 @@ export default async function CurrentFocusPage({ searchParams }: CurrentFocusPag
   const currentWeekStart = getCurrentFocusWeekStart();
   const nextWeekStart = getNextCurrentFocusWeekStart();
   const resolvedWeekStart = resolveCurrentFocusWeekStart(week, edit === "1" && isAdmin);
-  const [board, presets] = await Promise.all([
+  const previousWeekStart = getPreviousCurrentFocusWeekStart(resolvedWeekStart);
+  const [board, presets, previousBoard] = await Promise.all([
     getCurrentFocusBoard(resolvedWeekStart),
     getCurrentFocusTaskPresets(),
+    edit === "1" && isAdmin ? getCurrentFocusBoard(previousWeekStart) : Promise.resolve(null),
   ]);
 
   return (
@@ -47,6 +50,7 @@ export default async function CurrentFocusPage({ searchParams }: CurrentFocusPag
         initialIsAdmin={isAdmin}
         currentWeekStart={currentWeekStart}
         nextWeekStart={nextWeekStart}
+        initialPreviousBoard={previousBoard}
         initialPresets={presets}
       />
     </div>

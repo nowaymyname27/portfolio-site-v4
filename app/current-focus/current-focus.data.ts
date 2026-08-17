@@ -73,6 +73,12 @@ export function getNextCurrentFocusWeekStart(referenceDate = new Date()): string
   return formatDateKey(currentWeekStart);
 }
 
+export function getPreviousCurrentFocusWeekStart(weekStart = getCurrentFocusWeekStart()): string {
+  const previousWeekStart = createUtcDate(weekStart);
+  previousWeekStart.setUTCDate(previousWeekStart.getUTCDate() - 7);
+  return formatDateKey(previousWeekStart);
+}
+
 export function resolveCurrentFocusWeekStart(requestedWeek: string | undefined, isAdmin: boolean): string {
   const currentWeekStart = getCurrentFocusWeekStart();
 

@@ -15,6 +15,7 @@ import {
 
 type StudyCalendarProps = {
   initialBoard: CurrentFocusBoard;
+  initialPreviousBoard: CurrentFocusBoard | null;
   initialPresets: CurrentFocusTaskPreset[];
   editModeRequested: boolean;
   initialIsAdmin: boolean;
@@ -120,6 +121,7 @@ function getInitialSelectedDate(days: CurrentFocusDay[]): string {
 
 export default function StudyCalendar({
   initialBoard,
+  initialPreviousBoard,
   initialPresets,
   editModeRequested,
   initialIsAdmin,
@@ -541,27 +543,74 @@ export default function StudyCalendar({
           {authError ? <p className="text-sm text-[var(--tag-amber-text)]">{authError}</p> : null}
 
           {isAdmin ? (
-            <div className="flex flex-wrap gap-2 border-t border-[var(--border-muted)] pt-4">
-              <Link
-                href={getWeekHref(currentWeekStart)}
-                className={`border px-3 py-2 font-mono text-xs uppercase tracking-wide transition-colors ${
-                  !isPlanningNextWeek
-                    ? "border-[var(--hover-border)] bg-background text-foreground"
-                    : "border-[var(--border-muted)] text-foreground/70 hover:bg-background/50"
-                }`}
-              >
-                this week
-              </Link>
-              <Link
-                href={getWeekHref(nextWeekStart)}
-                className={`border px-3 py-2 font-mono text-xs uppercase tracking-wide transition-colors ${
-                  isPlanningNextWeek
-                    ? "border-[var(--hover-border)] bg-background text-foreground"
-                    : "border-[var(--border-muted)] text-foreground/70 hover:bg-background/50"
-                }`}
-              >
-                next week
-              </Link>
+            <div className="space-y-4 border-t border-[var(--border-muted)] pt-4">
+              <div className="flex flex-wrap gap-2">
+                <Link
+                  href={getWeekHref(currentWeekStart)}
+                  className={`border px-3 py-2 font-mono text-xs uppercase tracking-wide transition-colors ${
+                    !isPlanningNextWeek
+                      ? "border-[var(--hover-border)] bg-background text-foreground"
+                      : "border-[var(--border-muted)] text-foreground/70 hover:bg-background/50"
+                  }`}
+                >
+                  this week
+                </Link>
+                <Link
+                  href={getWeekHref(nextWeekStart)}
+                  className={`border px-3 py-2 font-mono text-xs uppercase tracking-wide transition-colors ${
+                    isPlanningNextWeek
+                      ? "border-[var(--hover-border)] bg-background text-foreground"
+                      : "border-[var(--border-muted)] text-foreground/70 hover:bg-background/50"
+                  }`}
+                >
+                  next week
+                </Link>
+              </div>
+
+              {initialPreviousBoard ? (
+                <details className="group border border-dashed border-[var(--border-muted)] bg-background/25">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-3 font-mono text-xs uppercase tracking-wide text-foreground/60 marker:hidden">
+                    <span>Previous week reference: {getWeekRangeLabel(initialPreviousBoard.weekStart)}</span>
+                    <span className="text-foreground/45 transition-transform group-open:rotate-180">v</span>
+                  </summary>
+
+                  <div className="grid gap-2 border-t border-[var(--border-muted)] p-3 md:grid-cols-2 xl:grid-cols-7">
+                    {initialPreviousBoard.days.map((day) => (
+                      <article
+                        key={`previous-${day.date}`}
+                        className="min-h-32 space-y-3 border border-[var(--border-muted)] bg-background/20 p-3"
+                      >
+                        <div className="space-y-1">
+                          <p className="font-mono text-sm text-foreground">{getDayLabel(day.date)}</p>
+                          <p className="font-mono text-[10px] uppercase tracking-wide text-foreground/60">
+                            {day.tasks.length} {day.tasks.length === 1 ? "task" : "tasks"}
+                          </p>
+                          <p className="font-mono text-[10px] uppercase tracking-wide text-[var(--status-completed-text)]">
+                            {getTaskProgress(day.tasks)}
+                          </p>
+                        </div>
+
+                        {day.tasks.length > 0 ? (
+                          <div className="flex flex-wrap gap-1">
+                            {day.tasks.map((task) => (
+                              <span
+                                key={`previous-${task.id}`}
+                                className={`border px-1.5 py-1 font-mono text-[10px] uppercase tracking-wide ${getColorClasses(
+                                  task.color,
+                                )} ${task.completed ? "bg-[var(--status-completed-text)]/10 line-through opacity-75" : ""}`}
+                              >
+                                {task.title}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="font-mono text-[10px] uppercase tracking-wide text-foreground/40">no tasks yet</p>
+                        )}
+                      </article>
+                    ))}
+                  </div>
+                </details>
+              ) : null}
             </div>
           ) : null}
         </article>
