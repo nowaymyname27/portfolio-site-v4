@@ -42,6 +42,8 @@
 
   --status-completed-text: #6ee7b7;
   --status-completed-border: rgba(110, 231, 183, 0.7);
+  --status-skipped-text: #fcd34d;
+  --status-skipped-border: rgba(252, 211, 77, 0.7);
   --status-progress-text: #fcd34d;
   --status-progress-border: rgba(252, 211, 77, 0.7);
 
@@ -220,6 +222,8 @@ html[data-mode="light"] {
 
   --status-completed-text: #047857;
   --status-completed-border: rgba(4, 120, 87, 0.6);
+  --status-skipped-text: #b45309;
+  --status-skipped-border: rgba(180, 83, 9, 0.6);
   --status-progress-text: #b45309;
   --status-progress-border: rgba(180, 83, 9, 0.6);
 

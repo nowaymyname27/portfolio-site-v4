@@ -5,9 +5,11 @@ import { NextResponse } from "next/server";
 import {
   resolveCurrentFocusWeekStart,
   isCurrentFocusColor,
+  isCurrentFocusTaskStatus,
   isCurrentFocusWeekDate,
   type CurrentFocusBoard,
   type CurrentFocusColor,
+  type CurrentFocusTaskStatus,
 } from "@/app/current-focus/current-focus.data";
 import { isCurrentFocusAdmin } from "@/app/lib/current-focus-admin";
 import { getCurrentFocusBoard, saveCurrentFocusBoard } from "@/app/lib/current-focus-store";
@@ -25,7 +27,7 @@ type UpdateTaskAction = {
   taskId?: string;
   title?: string;
   color?: string;
-  completed?: boolean;
+  status?: string;
 };
 
 type DeleteTaskAction = {
@@ -115,13 +117,13 @@ export async function PATCH(request: Request) {
 
     const nextBoard = updateBoardDay(board, date, (tasks) => [
       ...tasks,
-      {
-        id: randomUUID(),
-        title,
-        color,
-        completed: false,
-      },
-    ]);
+        {
+          id: randomUUID(),
+          title,
+          color,
+          status: "pending",
+        },
+      ]);
 
     if (!nextBoard) {
       return NextResponse.json({ error: "Day not found." }, { status: 404 });
@@ -152,8 +154,8 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: "Invalid task color." }, { status: 400 });
     }
 
-    if (body.completed !== undefined && typeof body.completed !== "boolean") {
-      return NextResponse.json({ error: "Invalid completion value." }, { status: 400 });
+    if (body.status !== undefined && !isCurrentFocusTaskStatus(body.status)) {
+      return NextResponse.json({ error: "Invalid task status." }, { status: 400 });
     }
 
     const nextBoard = updateBoardDay(board, date, (tasks) => {
@@ -170,7 +172,7 @@ export async function PATCH(request: Request) {
           ...task,
           title: nextTitle ?? task.title,
           color: (body.color as CurrentFocusColor | undefined) ?? task.color,
-          completed: body.completed !== undefined ? body.completed : task.completed,
+          status: (body.status as CurrentFocusTaskStatus | undefined) ?? task.status,
         };
       });
 

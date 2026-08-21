@@ -23,11 +23,15 @@ export const CURRENT_FOCUS_COLOR_OPTIONS = [
 
 export type CurrentFocusColor = (typeof CURRENT_FOCUS_COLOR_OPTIONS)[number];
 
+export const CURRENT_FOCUS_TASK_STATUS_OPTIONS = ["pending", "completed", "skipped"] as const;
+
+export type CurrentFocusTaskStatus = (typeof CURRENT_FOCUS_TASK_STATUS_OPTIONS)[number];
+
 export type CurrentFocusTask = {
   id: string;
   title: string;
   color: CurrentFocusColor;
-  completed: boolean;
+  status: CurrentFocusTaskStatus;
 };
 
 export type CurrentFocusTaskPreset = {
@@ -125,6 +129,10 @@ export function isCurrentFocusColor(value: string): value is CurrentFocusColor {
   return CURRENT_FOCUS_COLOR_OPTIONS.includes(value as CurrentFocusColor);
 }
 
+export function isCurrentFocusTaskStatus(value: string): value is CurrentFocusTaskStatus {
+  return CURRENT_FOCUS_TASK_STATUS_OPTIONS.includes(value as CurrentFocusTaskStatus);
+}
+
 export function isCurrentFocusWeekDate(weekStart: string, date: string): boolean {
   return getCurrentFocusWeekDates(weekStart).includes(date);
 }
@@ -158,12 +166,22 @@ export function normalizeCurrentFocusBoard(board: unknown, weekStart = getCurren
             }
 
             const candidateTask = task as Partial<CurrentFocusTask>;
+            const hasLegacyCompleted = typeof (candidateTask as { completed?: unknown }).completed === "boolean";
+            const legacyCompleted = hasLegacyCompleted ? Boolean((candidateTask as { completed?: boolean }).completed) : null;
+
+            const status = isCurrentFocusTaskStatus(candidateTask.status ?? "")
+              ? candidateTask.status
+              : legacyCompleted
+                ? "completed"
+                : hasLegacyCompleted
+                  ? "pending"
+                  : null;
 
             if (
               typeof candidateTask.id !== "string" ||
               typeof candidateTask.title !== "string" ||
               !isCurrentFocusColor(candidateTask.color ?? "") ||
-              typeof candidateTask.completed !== "boolean"
+              !status
             ) {
               return [];
             }
@@ -179,7 +197,7 @@ export function normalizeCurrentFocusBoard(board: unknown, weekStart = getCurren
                 id: candidateTask.id,
                 title,
                 color: candidateTask.color as CurrentFocusColor,
-                completed: candidateTask.completed,
+                status,
               },
             ];
           })

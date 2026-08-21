@@ -11,6 +11,7 @@ import {
   type CurrentFocusDay,
   type CurrentFocusTask,
   type CurrentFocusTaskPreset,
+  type CurrentFocusTaskStatus,
 } from "@/app/current-focus/current-focus.data";
 
 type StudyCalendarProps = {
@@ -44,7 +45,7 @@ type BoardAction =
       taskId: string;
       title?: string;
       color?: CurrentFocusColor;
-      completed?: boolean;
+      status?: CurrentFocusTaskStatus;
     }
   | {
       type: "delete-task";
@@ -93,8 +94,41 @@ function getWeekRangeLabel(weekStart: string): string {
 }
 
 function getTaskProgress(tasks: CurrentFocusTask[]): string {
-  const completedCount = tasks.filter((task) => task.completed).length;
-  return `${completedCount} / ${tasks.length} done`;
+  const completedCount = tasks.filter((task) => task.status === "completed").length;
+  const skippedCount = tasks.filter((task) => task.status === "skipped").length;
+  return `${completedCount} done / ${skippedCount} skipped / ${tasks.length} total`;
+}
+
+function getTaskStateClasses(status: CurrentFocusTaskStatus): string {
+  if (status === "completed") {
+    return "bg-[var(--status-completed-text)]/10 line-through opacity-75";
+  }
+
+  if (status === "skipped") {
+    return "bg-[var(--status-skipped-text)]/10 opacity-80";
+  }
+
+  return "";
+}
+
+function getTaskStatusBadge(status: CurrentFocusTaskStatus): { label: string; className: string } | null {
+  if (status === "completed") {
+    return {
+      label: "done",
+      className:
+        "border border-[var(--status-completed-border)] px-2 py-1 font-mono text-[10px] uppercase tracking-wide text-[var(--status-completed-text)]",
+    };
+  }
+
+  if (status === "skipped") {
+    return {
+      label: "skipped",
+      className:
+        "border border-[var(--status-skipped-border)] px-2 py-1 font-mono text-[10px] uppercase tracking-wide text-[var(--status-skipped-text)]",
+    };
+  }
+
+  return null;
 }
 
 function getBoardTitle(weekStart: string, currentWeekStart: string, nextWeekStart: string): string {
@@ -597,7 +631,7 @@ export default function StudyCalendar({
                                 key={`previous-${task.id}`}
                                 className={`border px-1.5 py-1 font-mono text-[10px] uppercase tracking-wide ${getColorClasses(
                                   task.color,
-                                )} ${task.completed ? "bg-[var(--status-completed-text)]/10 line-through opacity-75" : ""}`}
+                                )} ${getTaskStateClasses(task.status)}`}
                               >
                                 {task.title}
                               </span>
@@ -648,7 +682,7 @@ export default function StudyCalendar({
                       key={task.id}
                       className={`border px-1.5 py-1 font-mono text-[10px] uppercase tracking-wide ${getColorClasses(
                         task.color,
-                      )} ${task.completed ? "bg-[var(--status-completed-text)]/10 line-through opacity-75" : ""}`}
+                      )} ${getTaskStateClasses(task.status)}`}
                     >
                       {task.title}
                     </span>
@@ -927,14 +961,17 @@ export default function StudyCalendar({
         {selectedDay ? (
           selectedDay.tasks.length > 0 ? (
             <div className="space-y-3">
-              {selectedDay.tasks.map((task) => (
-                <article
-                  key={task.id}
-                  className={`space-y-3 border bg-background/30 p-3 ${getColorClasses(task.color)} ${
-                    task.completed ? "opacity-70" : "opacity-100"
-                  }`}
-                >
-                  <div className="flex flex-wrap items-start justify-between gap-3">
+              {selectedDay.tasks.map((task) => {
+                const taskStatusBadge = getTaskStatusBadge(task.status);
+
+                return (
+                  <article
+                    key={task.id}
+                    className={`space-y-3 border bg-background/30 p-3 ${getColorClasses(task.color)} ${
+                      task.status === "pending" ? "opacity-100" : "opacity-80"
+                    }`}
+                  >
+                    <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="space-y-2">
                       <div className="flex flex-wrap items-center gap-2">
                         {editingTaskId === task.id ? (
@@ -957,7 +994,7 @@ export default function StudyCalendar({
                           />
                         ) : (
                           <h4
-                            className={`font-mono text-sm md:text-base ${task.completed ? "line-through" : ""}`}
+                            className={`font-mono text-sm md:text-base ${task.status === "completed" ? "line-through" : ""}`}
                           >
                             {task.title}
                           </h4>
@@ -967,9 +1004,9 @@ export default function StudyCalendar({
                         >
                           {task.color}
                         </span>
-                        {task.completed ? (
-                          <span className="border border-[var(--status-completed-border)] px-2 py-1 font-mono text-[10px] uppercase tracking-wide text-[var(--status-completed-text)]">
-                            done
+                        {taskStatusBadge ? (
+                          <span className={taskStatusBadge.className}>
+                            {taskStatusBadge.label}
                           </span>
                         ) : null}
                       </div>
@@ -1010,22 +1047,60 @@ export default function StudyCalendar({
                             </button>
                             <button
                               type="button"
-                              disabled={isSaving}
+                              disabled={isSaving || task.status === "completed"}
                               onClick={() => {
                                 void mutateBoard({
                                   type: "update-task",
                                   date: selectedDay.date,
                                   taskId: task.id,
-                                  completed: !task.completed,
+                                  status: "completed",
                                 });
                               }}
                               className={`border px-3 py-2 font-mono text-xs uppercase tracking-wide transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
-                                task.completed
-                                  ? "border-[var(--status-completed-border)] text-[var(--status-completed-text)] hover:bg-[var(--status-completed-text)]/10"
+                                task.status === "completed"
+                                  ? "border-[var(--status-completed-border)] text-[var(--status-completed-text)]"
                                   : "border-[var(--border-muted)] text-foreground hover:bg-foreground hover:text-background"
                               }`}
                             >
-                              {task.completed ? "mark incomplete" : "mark complete"}
+                              mark done
+                            </button>
+                            <button
+                              type="button"
+                              disabled={isSaving || task.status === "skipped"}
+                              onClick={() => {
+                                void mutateBoard({
+                                  type: "update-task",
+                                  date: selectedDay.date,
+                                  taskId: task.id,
+                                  status: "skipped",
+                                });
+                              }}
+                              className={`border px-3 py-2 font-mono text-xs uppercase tracking-wide transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
+                                task.status === "skipped"
+                                  ? "border-[var(--status-skipped-border)] text-[var(--status-skipped-text)]"
+                                  : "border-[var(--status-skipped-border)] text-[var(--status-skipped-text)] hover:bg-[var(--status-skipped-text)]/10"
+                              }`}
+                            >
+                              mark skipped
+                            </button>
+                            <button
+                              type="button"
+                              disabled={isSaving || task.status === "pending"}
+                              onClick={() => {
+                                void mutateBoard({
+                                  type: "update-task",
+                                  date: selectedDay.date,
+                                  taskId: task.id,
+                                  status: "pending",
+                                });
+                              }}
+                              className={`border px-3 py-2 font-mono text-xs uppercase tracking-wide transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
+                                task.status === "pending"
+                                  ? "border-[var(--status-progress-border)] text-[var(--status-progress-text)]"
+                                  : "border-[var(--status-progress-border)] text-[var(--status-progress-text)] hover:bg-[var(--status-progress-text)]/10"
+                              }`}
+                            >
+                              mark pending
                             </button>
                           </>
                         )}
@@ -1075,8 +1150,9 @@ export default function StudyCalendar({
                       })}
                     </div>
                   ) : null}
-                </article>
-              ))}
+                  </article>
+                );
+              })}
             </div>
           ) : (
             <p className="text-sm leading-7 text-foreground/75">
