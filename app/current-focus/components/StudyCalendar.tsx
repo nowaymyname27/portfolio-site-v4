@@ -131,6 +131,24 @@ function getTaskStatusBadge(status: CurrentFocusTaskStatus): { label: string; cl
   return null;
 }
 
+function renderWeekTaskChip(task: CurrentFocusTask, key: string) {
+  const isSkipped = task.status === "skipped";
+
+  return (
+    <span
+      key={key}
+      className={`border px-1.5 py-1 font-mono text-[10px] uppercase tracking-wide ${getColorClasses(task.color)} ${getTaskStateClasses(
+        task.status,
+      )} ${isSkipped ? "inline-flex flex-col items-start gap-0.5" : ""}`}
+    >
+      {isSkipped ? (
+        <span className="text-[9px] tracking-[0.22em] text-[var(--status-skipped-text)]">SKIPPED</span>
+      ) : null}
+      <span>{task.title}</span>
+    </span>
+  );
+}
+
 function getBoardTitle(weekStart: string, currentWeekStart: string, nextWeekStart: string): string {
   if (weekStart === nextWeekStart) {
     return "Next Week's Focus";
@@ -626,16 +644,7 @@ export default function StudyCalendar({
 
                         {day.tasks.length > 0 ? (
                           <div className="flex flex-wrap gap-1">
-                            {day.tasks.map((task) => (
-                              <span
-                                key={`previous-${task.id}`}
-                                className={`border px-1.5 py-1 font-mono text-[10px] uppercase tracking-wide ${getColorClasses(
-                                  task.color,
-                                )} ${getTaskStateClasses(task.status)}`}
-                              >
-                                {task.title}
-                              </span>
-                            ))}
+                            {day.tasks.map((task) => renderWeekTaskChip(task, `previous-${task.id}`))}
                           </div>
                         ) : (
                           <p className="font-mono text-[10px] uppercase tracking-wide text-foreground/40">no tasks yet</p>
@@ -677,16 +686,7 @@ export default function StudyCalendar({
 
               {day.tasks.length > 0 ? (
                 <div className="flex flex-wrap gap-1">
-                  {day.tasks.map((task) => (
-                    <span
-                      key={task.id}
-                      className={`border px-1.5 py-1 font-mono text-[10px] uppercase tracking-wide ${getColorClasses(
-                        task.color,
-                      )} ${getTaskStateClasses(task.status)}`}
-                    >
-                      {task.title}
-                    </span>
-                  ))}
+                  {day.tasks.map((task) => renderWeekTaskChip(task, task.id))}
                 </div>
               ) : (
                 <p className="font-mono text-[10px] uppercase tracking-wide text-foreground/40">no tasks yet</p>
