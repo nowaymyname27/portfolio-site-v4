@@ -142,7 +142,7 @@ function renderWeekTaskChip(task: CurrentFocusTask, key: string) {
       )} ${isSkipped ? "inline-flex flex-col items-start gap-0.5" : ""}`}
     >
       {isSkipped ? (
-        <span className="text-[9px] tracking-[0.22em] text-[var(--status-skipped-text)]">SKIPPED</span>
+        <span className="text-[9px] tracking-[0.22em] text-[var(--tag-rose-text)]">SKIPPED</span>
       ) : null}
       <span>{task.title}</span>
     </span>
